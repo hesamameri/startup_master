@@ -8,8 +8,8 @@ from email.policy import default
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 st.set_page_config(layout = "wide", page_title="StartupGPT")
-import app_components as components 
-import chatbot_utils as cu
+#import app_components as components 
+#import chatbot_utils as cu
 
 
 openai.api_key = st.secrets["OPENAI_KEY"]
