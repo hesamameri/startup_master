@@ -3,13 +3,14 @@ import os
 #from decouple import config
 import openai
 import streamlit as st
-from streamlit_chat import message
+#from streamlit_chat import message
 from email.policy import default
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 st.set_page_config(layout = "wide", page_title="StartupGPT")
 import app_components as components 
 import chatbot_utils as cu
+
 
 openai.api_key = st.secrets["OPENAI_KEY"]
 cathy_line =''
