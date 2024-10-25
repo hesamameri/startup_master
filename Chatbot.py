@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi 
 from streamlit_js_eval import streamlit_js_eval
 
-st.set_page_config(layout="wide", page_title="StartupGPT") 
+st.set_page_config(layout="wide", page_title="ProjectGPT") 
 
 def local_css(file_name):
     with open(file_name) as f:
@@ -26,7 +26,7 @@ def init_connection():
 client = init_connection()
 
 #### MAIN PAGE ####
-st.title("Welcome to StartupGPT")
+st.title("Welcome to ProjectGPT")
 
 def gather_feedback():
   return {
@@ -182,19 +182,10 @@ with st.form("test_form"):
 
 
 st.subheader("Information about the project")
-st.write("This website serves as a prototype developed as part of a master thesis in Computer Science at the Norwegian University of Science and Technology (NTNU). The core objective of this project is to harness the potential of ChatGPT in empowering startups. While ChatGPT is becoming a widely used tool for businesses, tailoring it to fit the needs of different sectors can make it significantly more valuable for that particular sector. For startups this can be especially valuable due to high failure rates and lack of support. The use of AI tools such as ChatGPT as a virtual assistant can thereby help entrepreneurs save time, reduce costs, and improve productivity.")
-st.write("Through this prototype we specifically aim to analyze and compare various versions of ChatGPT to identify models that best align with critical startup use cases. Obtaining real-world input is crucial in evaluating the efficacy of ChatGPT models in practical scenarios. Gaining the insights from potential users associated with startups is thereby a big help.")
-st.write("The anticipated outcome of this research is a more effective use of AI tools like ChatGPT in startups. By customizing these tools to the specific needs startup companies, this project aspires to contribute to a future where more startups can thrive and succeed.")
+st.write("ProjectGPT is a prototype of a virtual assistant built on GPT technology. ProjectGPT will support students to learn from the courses")
 
 st.subheader("Who is responsible for the research project?")
-st.write("Department of Computer Science (Institutt for datateknologi og informatikk) at NTNU is responsible for the project")
-
-st.subheader("Why are you asked to participate?")
-st.write("Students and graduates in the early stages of startup development are asked to partake in this study to offer their perspectives on generative AI in startup development.")
-
-st.subheader("What does your participation entail?")
-st.write("Participation in this study includes interaction with three different chatbots, and answering the following questionnaire regarding your experiences. The time estimated for this study is about 20 minutes, 6 minutes per chatbot.")
-
+st.write("Department of Economic and Informatikk, Business School, University of South Eastern Norway")
 
 st.subheader("Voluntary Participation")
 st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw all the data obtained concerning you for this study is deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study click the button below:")
@@ -236,42 +227,9 @@ for i in lst:
     s += "- " + i + "\n"
 st.markdown(s)
 
-st.subheader("What happens to your data when the research project is finished?")
-st.write("The project is estimated to finish in the early summer of 2024. All data associated with you will be destroyed securely after this finish date.")
-
 st.subheader("What gives us the right to handle data about you?")
 st.write("We process information about you based on your consent.")
-st.write("On behalf of NTNU, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
-
-st.subheader("Rights of participants")
-st.write("As long as you can be identified in the data material, you have the right to:")
-lst2 = [
-    "access information we process about you, and to receive a copy of the information",
-    "have personal information about you deleted", 
-    "send a complaint to the Norwegian Data Protection Authority (Datatilsynet) about the processing of your personal data"
-]
-s = ''
-for i in lst2:
-    s += "- " + i + "\n"
-st.markdown(s)
-
-st.subheader("Contact")
-st.write("If you have any questions or feedback on the prototype, please don't hesitate to contact us!")
-lst5 = [
-    '<p>Researcher, Thea Lovise Ahlgren: <a href="mailto:thealah@stud.ntnu.no">thealah@stud.ntnu.no</a></p>', 
-    '<p>Researcher, Helene Fønstelien Sunde: <a href="mailto:helenfs@stud.ntnu.no">helenfs@stud.ntnu.no</a></p>',
-    '<p>Project supervisor, Anh Nguyen-Duc: <a href="mailto:angu@usn.no">angu@usn.no</a></p>' 
-]
-s = ''
-for i in lst5:
-    s += "- " + i + "\n"
-st.markdown(s,unsafe_allow_html=True)
-
-st.markdown("\n")
-st.write("Our data protection officer:")
-st.markdown('- Thomas Helgesen: <a href="mailto:thomas.helgesen@ntnu.no">thomas.helgesen@ntnu.no</a> \n', unsafe_allow_html=True)
-st.write("If you have any questions related to the assessment made by the privacy services from Sikt, you can contact them via:")
-st.markdown('<p>Epost: <a href="mailto:personverntjenester@sikt.no">personverntjenester@sikt.no</a> or phone: 73 98 40 40.</p>', unsafe_allow_html=True)
+st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
 
 ####### SIDEBAR #######
 components.sidebar_nav(st.session_state['user_id'] is None)
