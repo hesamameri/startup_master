@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-from decouple import config
+#from decouple import config
 import openai
 import streamlit as st
 from streamlit_chat import message
