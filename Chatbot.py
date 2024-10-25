@@ -1,7 +1,7 @@
 from datetime import datetime
 import streamlit as st
 import uuid
-import app_components as components 
+#import app_components as components 
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi 
 from streamlit_js_eval import streamlit_js_eval
@@ -232,5 +232,5 @@ st.write("We process information about you based on your consent.")
 st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
 
 ####### SIDEBAR #######
-components.sidebar_nav(st.session_state['user_id'] is None)
+#components.sidebar_nav(st.session_state['user_id'] is None)
 
