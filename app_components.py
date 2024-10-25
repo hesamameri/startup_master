@@ -12,17 +12,13 @@ def sidebar_nav(disabeled):
         st.write("Your tasks")
         with st.expander("Task 1", expanded=True):
             if(disabeled):
-                st.page_link("pages/6_Task_Information.py", label="Task information", disabled=True, help="Submit form to unlock")
-                st.page_link("pages/3_Chatbot_1.py", label="Chatbot 1", disabled=True, help="Submit form to unlock")
-                st.page_link("pages/4_Chatbot_2.py", label="Chatbot 2", disabled=True, help="Submit form to unlock")
-                st.page_link("pages/5_Chatbot_3.py", label="Chatbot 3", disabled=True, help="Submit form to unlock")
+                st.page_link("pages/6_Task_Information.py", label="Your history progress", disabled=True, help="Submit form to unlock")
+                st.page_link("pages/3_Chatbot_1.py", label="GPT Buddy", disabled=True, help="Submit form to unlock")
                 st.page_link("pages/5_Feedback.py", label="Feedback", disabled=True, help="Submit form to unlock")
             
             else:
-                st.page_link("pages/6_Task_Information.py", label="Task information")
-                st.page_link("pages/3_Chatbot_1.py", label="Chatbot 1")
-                st.page_link("pages/4_Chatbot_2.py", label="Chatbot 2")
-                st.page_link("pages/5_Chatbot_3.py", label="Chatbot 3")
+                st.page_link("pages/6_Task_Information.py", label="Your history progress")
+                st.page_link("pages/3_Chatbot_1.py", label="GPT Buddy")
                 st.page_link("pages/5_Feedback.py", label="Feedback")
 
 
