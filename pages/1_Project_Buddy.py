@@ -30,6 +30,8 @@ with tab1:
     """, unsafe_allow_html=True)
     with st.form("my_form"):
         jim_line = st.text_area("Write you command here","", height=10, key='option')
+        submitted = st.form_submit_button("Submit")
+
 
 with tab2:
     st.title("🏢 Step-by-step guideline")
