@@ -1,4 +1,5 @@
 
+import pymongo
 import streamlit as st
 st.set_page_config(layout="wide", page_title="ProjectGPT")
 
@@ -7,24 +8,20 @@ from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi 
 from streamlit_js_eval import streamlit_js_eval
-from chatbot_utils import check_user_login, gather_feedback, local_css, init_connection
+from chatbot_utils import check_user_login, gather_feedback, handle_submit, handle_withdrawal, local_css, init_connection, update_chat_db, write_data
 
 
 
 #-------------------------------------Style Settings------------------------------------------------
-
-
 local_css("./styles.css")
-
 #------------------------------------------USER Authentication-------------------------------------------
 check_user_login()
-    
-
-
-
 #------------------------------------------DATABASE CONNECTION-------------------------------------------
 client = init_connection()
-
+connection_string = st.secrets["mongo"]["uri"]
+client = pymongo.MongoClient(connection_string)
+db = client.usertests
+backup_db = client.usertests_backup
 #------------------------------------------PAGE LAYOUT----------------------------------------------------
 st.title("Welcome to ProjectGPT")
 
@@ -105,106 +102,35 @@ def display_form():
     
     #st.session_state['gpt_experience'] = st.selectbox("Level of experience with ChatGPT", gpt_exp_options, index=get_selectbox_index(gpt_exp_options, 'gpt_experience'), placeholder="Select an option")
 
-
-
-
-def write_data(mydict):
-    db = client.usertests #establish connection to the 'test_db' db
-    backup_db = client.usertests_backup
-    items = db.cycle_3 # return all result from the 'test_chats' collection
-    items_backup = backup_db.cycle_3
-    items.insert_one(mydict)
-    items_backup.insert_one(mydict)
-
-def get_user_feedback(feedback):
-    user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
-    return user_feedback
-
-def update_chat_db(feedback):
-    db = client.usertests 
-    backup_db = client.usertests_backup
-    user_feedback = get_user_feedback(feedback)
-
-    print("form:", user_feedback)
-    print("userid:", st.session_state['user_id'])
-
-    print(len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))))
-
-    if len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))) > 0:
-        print("opdaterte chatobjekt")
-        db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-        backup_db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-
-    else:
-        write_data(user_feedback)
-        print("lagret ny chatobjekt")
-
-
-def get_selectbox_index(option_list, session_state_key):
-    # """Returns the index of the current session state value in the options list, or None if not found."""
-    try:
-        return option_list.index(st.session_state[session_state_key])
-    except (ValueError, KeyError):
-        return None  # Return None to use the placeholder
-
-
-
-def handle_submit(is_new_user, submit_text):
-    # """Handles the form submission for new and returning users."""
-    if is_new_user:
-        st.session_state['user_id'] = str(uuid.uuid4())
-
-    st.toast("Thank you for submitting. You can still update the information and submit again")
-    
-    if submit_text != "Click to update form information":
-        button_container.form_submit_button("Click to update form information")
-        st.info("You can now access the tasks in the sidebar")
-    all_feedback = gather_feedback()
-    update_chat_db(all_feedback)
-
 with st.form("test_form"):
     is_new_user = st.session_state.get('user_id') is None
     display_form()
 
+    # Set the submit button text based on the user status
     submit_text = "Log In" if is_new_user else "Click to update form information"
+    
+    # Create a button container to manage the form button
     button_container = st.empty()
 
+    # Pass button_container along with other parameters to handle_submit
     if button_container.form_submit_button(submit_text):
-        handle_submit(is_new_user, submit_text)
-
+        handle_submit(is_new_user, submit_text, db, backup_db, button_container)
 
 st.subheader("Information about the project")
 st.write("ProjectGPT is a prototype of a virtual assistant built on GPT technology. ProjectGPT will support students to learn from the courses")
 
 st.subheader("Who is responsible for the research project?")
 st.write("Department of Economic and Informatikk, Business School, University of South Eastern Norway")
-
 st.subheader("Voluntary Participation")
 st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw all the data obtained concerning you for this study is deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study click the button below:")
 withdraw_button_container = st.empty()
 
-if st.session_state['user_id'] is None:
-    withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=True, help="You have not entered the study")
-else:
-    if withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=False):
-        
-        print("witdrawn") ## Add modal when feature is released
-        db = client.usertests
-        backup_db = client.usertests_backup
+with st.container():
+    withdraw_button_container = st.empty()  # Empty container for dynamic button
+    button_container = st.empty()  # Another container for form buttons
 
-        if len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))) > 0:
-            db.cycle_3.delete_one({"Task-1.id": st.session_state['user_id']})
-            backup_db.cycle_3.delete_one({"Task-1.id": st.session_state['user_id']})
-
-        for key in st.session_state.keys():
-            del st.session_state[key]
-        
-        st.session_state['user_id'] = None  
-        
-        withdraw_button = withdraw_button_container.button("You have successfully withdrawn from the study. All data associated to you has been deleted", type="primary", disabled=True)   
-        consent_button = button_container.form_submit_button('Submit and consent to data usage as described on this page')
-
-        streamlit_js_eval(js_expressions="parent.window.location.reload()")
+    # Call the handle_withdrawal function with the database connections
+    handle_withdrawal(withdraw_button_container, button_container, client, db, backup_db)
 
 
 st.subheader("Confidentiality and Data Protection")
@@ -212,17 +138,14 @@ lst = [
     "We will only use your information for the purposes we have stated in this document.", 
     "All personal data collected during this study will be treated confidentially and in accordance with privacy regulations.", 
     "We will implement appropriate technical and organizational measures to ensure the security of your data.", 
-    "Data will be anonymized", 
+    "Data will be anonymized.", 
     "The data will be stored securely in a secure database and will only be accessible to the research team."
 ]
-s = ''
-for i in lst:
-    s += "- " + i + "\n"
+s = '\n'.join([f"- {item}" for item in lst])
 st.markdown(s)
+
 st.subheader("What gives us the right to handle data about you?")
 st.write("We process information about you based on your consent.")
 st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
 
-####### SIDEBAR #######
-# components.sidebar_nav(st.session_state['user_id'] is None)
 
