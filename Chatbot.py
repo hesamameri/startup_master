@@ -1,89 +1,39 @@
-from datetime import datetime
+
 import streamlit as st
+st.set_page_config(layout="wide", page_title="ProjectGPT")
+
 import uuid
-#import app_components as components 
+from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi 
 from streamlit_js_eval import streamlit_js_eval
+from chatbot_utils import check_user_login, gather_feedback, local_css, init_connection
 
-st.set_page_config(layout="wide", page_title="ProjectGPT") 
 
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+#-------------------------------------Style Settings------------------------------------------------
+
 
 local_css("./styles.css")
 
-if 'user_id' not in st.session_state:
-    st.session_state['user_id'] = None
+#------------------------------------------USER Authentication-------------------------------------------
+check_user_login()
+    
 
-print(st.session_state['user_id'])
 
-@st.cache_resource
-def init_connection():
-    return MongoClient(st.secrets.mongo.uri, server_api=ServerApi('1'))
 
+#------------------------------------------DATABASE CONNECTION-------------------------------------------
 client = init_connection()
 
-#### MAIN PAGE ####
+#------------------------------------------PAGE LAYOUT----------------------------------------------------
 st.title("Welcome to ProjectGPT")
-
-def gather_feedback():
-  return {
-    "stage": st.session_state['stage'],
-    "year_of_business":st.session_state['year'],
-    "size": st.session_state['size'],
-    "industry": st.session_state['industry'],
-    #"revenue": st.session_state['revenue'],
-    "location": st.session_state['location'],
-    "role": st.session_state['role'],
-    "birth_year": st.session_state['birth_year'],
-    "ChatGPT_experience":st.session_state['gpt_experience'],
-  }
-
-def write_data(mydict):
-    db = client.usertests #establish connection to the 'test_db' db
-    backup_db = client.usertests_backup
-    items = db.cycle_3 # return all result from the 'test_chats' collection
-    items_backup = backup_db.cycle_3
-    items.insert_one(mydict)
-    items_backup.insert_one(mydict)
-
-def get_user_feedback(feedback):
-    user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
-    return user_feedback
-
-def update_chat_db(feedback):
-    db = client.usertests 
-    backup_db = client.usertests_backup
-    user_feedback = get_user_feedback(feedback)
-
-    print("form:", user_feedback)
-    print("userid:", st.session_state['user_id'])
-
-    print(len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))))
-
-    if len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))) > 0:
-        print("opdaterte chatobjekt")
-        db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-        backup_db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-
-    else:
-        write_data(user_feedback)
-        print("lagret ny chatobjekt")
-
-
-def get_selectbox_index(option_list, session_state_key):
-    # """Returns the index of the current session state value in the options list, or None if not found."""
-    try:
-        return option_list.index(st.session_state[session_state_key])
-    except (ValueError, KeyError):
-        return None  # Return None to use the placeholder
-
 
 def display_form():
     # """Displays the form for both new and returning users."""
     st.subheader("Log In")
+    #st.caption("Personal details")
+    st.session_state['username'] = st.text_input("Enter your username", value=st.session_state.get('username', ''), placeholder="Group12_2025")
+    st.session_state['password'] = st.text_input("Enter your password", value=st.session_state.get('password', ''), placeholder="mypassword", )
     #st.write("By submitting the form you are consenting to:")
     #lst3= [
     #    "having received and understood information about the project", 
@@ -152,10 +102,52 @@ def display_form():
     # st.session_state['revenue'] = st.selectbox("Revenue Range", ["No revenue", "<1M NOK", "1M-10M NOK", ">10M NOK"], placeholder="Select an option") 
     #st.session_state['location'] = st.text_input("Location", value=st.session_state.get('location', ''), placeholder="City, Country")
 
-    #st.caption("Personal details")
-    st.session_state['username'] = st.text_input("Enter your username", value=st.session_state.get('username', ''), placeholder="Group12_2025")
-    st.session_state['password'] = st.text_input("Enter your password", value=st.session_state.get('password', ''), placeholder="mypassword", )
+    
     #st.session_state['gpt_experience'] = st.selectbox("Level of experience with ChatGPT", gpt_exp_options, index=get_selectbox_index(gpt_exp_options, 'gpt_experience'), placeholder="Select an option")
+
+
+
+
+def write_data(mydict):
+    db = client.usertests #establish connection to the 'test_db' db
+    backup_db = client.usertests_backup
+    items = db.cycle_3 # return all result from the 'test_chats' collection
+    items_backup = backup_db.cycle_3
+    items.insert_one(mydict)
+    items_backup.insert_one(mydict)
+
+def get_user_feedback(feedback):
+    user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
+    return user_feedback
+
+def update_chat_db(feedback):
+    db = client.usertests 
+    backup_db = client.usertests_backup
+    user_feedback = get_user_feedback(feedback)
+
+    print("form:", user_feedback)
+    print("userid:", st.session_state['user_id'])
+
+    print(len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))))
+
+    if len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))) > 0:
+        print("opdaterte chatobjekt")
+        db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
+        backup_db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
+
+    else:
+        write_data(user_feedback)
+        print("lagret ny chatobjekt")
+
+
+def get_selectbox_index(option_list, session_state_key):
+    # """Returns the index of the current session state value in the options list, or None if not found."""
+    try:
+        return option_list.index(st.session_state[session_state_key])
+    except (ValueError, KeyError):
+        return None  # Return None to use the placeholder
+
+
 
 def handle_submit(is_new_user, submit_text):
     # """Handles the form submission for new and returning users."""
@@ -190,6 +182,7 @@ st.write("Department of Economic and Informatikk, Business School, University of
 st.subheader("Voluntary Participation")
 st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw all the data obtained concerning you for this study is deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study click the button below:")
 withdraw_button_container = st.empty()
+
 if st.session_state['user_id'] is None:
     withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=True, help="You have not entered the study")
 else:
@@ -226,11 +219,10 @@ s = ''
 for i in lst:
     s += "- " + i + "\n"
 st.markdown(s)
-
 st.subheader("What gives us the right to handle data about you?")
 st.write("We process information about you based on your consent.")
 st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
 
 ####### SIDEBAR #######
-#components.sidebar_nav(st.session_state['user_id'] is None)
+# components.sidebar_nav(st.session_state['user_id'] is None)
 
