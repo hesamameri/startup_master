@@ -17,28 +17,47 @@ def check_user_login():
         st.session_state['user_id'] = None
 
 def gather_feedback():
-  return {
-    "stage": st.session_state['stage'],
-    "year_of_business":st.session_state['year'],
-    "size": st.session_state['size'],
-    "industry": st.session_state['industry'],
-    #"revenue": st.session_state['revenue'],
-    "location": st.session_state['location'],
-    "role": st.session_state['role'],
-    "birth_year": st.session_state['birth_year'],
-    "ChatGPT_experience":st.session_state['gpt_experience'],
-  }
+    # Initialize session state keys if they don't exist
+    default_values = {
+        'stage': 'default_stage',  # Default stage
+        'year': 0,                 # Default year
+        'size': 'unknown',         # Default size
+        'industry': 'unknown',     # Default industry
+        'location': 'unknown',     # Default location
+        'role': 'unknown',         # Default role
+        'birth_year': 0,           # Default birth year
+        'gpt_experience': 'unknown', # Default GPT experience
+        'session_storage_name': {},  # Default session storage name
+        'is_logged_in': False,      # Default login status (False by default)
+    }
+
+    # Initialize session_state with defaults if not already set
+    for key, default in default_values.items():
+        st.session_state.setdefault(key, default)
+    
+    return {
+        "stage": st.session_state['stage'],
+        "year_of_business": st.session_state['year'],
+        "size": st.session_state['size'],
+        "industry": st.session_state['industry'],
+        "location": st.session_state['location'],
+        "role": st.session_state['role'],
+        "birth_year": st.session_state['birth_year'],
+        "ChatGPT_experience": st.session_state['gpt_experience'],
+        "session_storage_name": st.session_state['session_storage_name'],
+        "is_logged_in": st.session_state['is_logged_in'],  # Include the login status
+    }
 
 def get_user_feedback(feedback):
     user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
     return user_feedback
 
-def handle_submit(is_new_user, submit_text, db, backup_db, button_container):
+def handle_submit(is_new_user, submit_text, db, backup_db, button_container, collection_name):
     """Handles the form submission for new and returning users."""
-    
-    # Assign a new unique user ID if this is a new user
     if is_new_user:
+        # Assign a new unique user ID and mark user as logged in
         st.session_state['user_id'] = str(uuid.uuid4())
+        st.session_state['is_logged_in'] = True  # Set is_logged_in to True after successful login
 
     # Display a confirmation message after submission
     st.toast("Thank you for submitting. You can still update the information and submit again.")
@@ -49,13 +68,8 @@ def handle_submit(is_new_user, submit_text, db, backup_db, button_container):
         st.info("You can now access the tasks in the sidebar")
 
     # Process feedback and update the database
-    all_feedback = gather_feedback()
-    update_chat_db(all_feedback, db, backup_db)
-
-
-    # Gather all feedback and update the database
-    all_feedback = gather_feedback()
-    update_chat_db(all_feedback, db, backup_db)
+    all_feedback = gather_feedback()  # Gather all feedback
+    update_chat_db(db, backup_db, session_storage_name=all_feedback['session_storage_name'], chatbot="chatbot_name", collection_name=collection_name)
 
 def handle_withdrawal(withdraw_button_container, button_container, client, db, backup_db):
     """Handles the withdrawal process for a user in the study."""
@@ -105,116 +119,124 @@ def local_css(file_name):
 def init_connection():
     return MongoClient(st.secrets.mongo.uri, server_api=ServerApi('1'))
 
-def write_data(mydict, db, backup_db):
-    items = db.cycle_3  # Main collection
-    items_backup = backup_db.cycle_3  # Backup collection
+def write_data(mydict, db, backup_db, collection_name):
+    # Access the collections dynamically using the provided collection name
+    items = db[collection_name]  # Main collection
+    items_backup = backup_db[collection_name]  # Backup collection
+
+    # Insert data into both collections
     items.insert_one(mydict)
     items_backup.insert_one(mydict)
-def update_chat_db(feedback, db, backup_db):
-    user_feedback = get_user_feedback(feedback)
 
-    print("form:", user_feedback)
-    print("userid:", st.session_state['user_id'])
 
-    # Check if a record already exists
-    if db.cycle_3.count_documents({"Task-1.id": st.session_state['user_id']}) > 0:
-        print("Updating existing chat object")
-        # Update both main and backup collections
-        db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']},
-                              {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-        backup_db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']},
-                                     {"$set": {"Task-1.time": datetime.now(), "Task-1.Demographic": feedback}})
-    else:
-        # Write new data if no existing record is found
-        write_data(user_feedback, db, backup_db)
-        print("Saved new chat object")
 
 # Chat Utils 
 
-def write_data(mydict, client):
-    db = client.usertests #establish connection to the 'test_db' db
-    backup_db = client.usertests_backup
-    items = db.cycle_3 # return all result from the 'test_chats' collection
-    items_backup = backup_db.cycle_3
-    items.insert_one(mydict)
-    items_backup.insert_one(mydict)
+
 
 def get_chatlog(session_storage_name):
     log = {}
     message_id_count = 0
-    for msg in st.session_state[session_storage_name]:
-        log[str(message_id_count)] = {"role":msg.get("role"), "content":msg.get("content")}
+    
+    # Check if the session_storage_name exists and is a list
+    if session_storage_name not in st.session_state:
+        print(f"Error: session_storage_name '{session_storage_name}' not found in session state.")
+        return log
+    
+    # Ensure the session storage is a list
+    session_data = st.session_state[session_storage_name]
+    if not isinstance(session_data, list):
+        print(f"Error: The data in session_storage_name '{session_storage_name}' is not a list.")
+        return log
+    
+    # Iterate through each message in the session data
+    for msg in session_data:
+        # Check if each message is a dictionary and contains the required keys
+        if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+            log[str(message_id_count)] = {"role": msg['role'], "content": msg['content']}
+        else:
+            print(f"Error: Invalid message format at index {message_id_count}. Message: {msg}")
+        
         message_id_count += 1
 
     return log
+
 
 def get_userchat(chatlog, chatbot):
     userchat = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), chatbot: chatlog}}
     return userchat
 
-def update_chat_db(client, session_storage_name, chatbot):
-    db = client.usertests 
-    chatlog = get_chatlog(session_storage_name)
-    backup_db = client.usertests_backup
+def update_chat_db(db, backup_db, session_storage_name, chatbot, collection_name):
+    chatlog = get_chatlog(session_storage_name)  # Get chat log based on session storage name
     
-    print(len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))))
+    print("Chatlog:", chatlog)
+    print("User ID:", st.session_state['user_id'])
 
-    if len(list(db.cycle_3.find({"Task-1.id": st.session_state['user_id']}))) > 0:
-        print("opdaterte chatobjekt")
-        db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1."+chatbot: chatlog}})
-        backup_db.cycle_3.update_one({"Task-1.id": st.session_state['user_id']}, {"$set": {"Task-1.time": datetime.now(), "Task-1."+chatbot: chatlog}})
-
+    # Check if the record exists
+    if db[collection_name].count_documents({"Task-1.id": st.session_state['user_id']}) > 0:
+        print("Updating existing chat object")
+        db[collection_name].update_one(
+            {"Task-1.id": st.session_state['user_id']},
+            {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
+        )
+        backup_db[collection_name].update_one(
+            {"Task-1.id": st.session_state['user_id']},
+            {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
+        )
     else:
-        write_data(get_userchat(chatlog, chatbot), client)
-        print("lagret ny chatobjekt")
-
-
-def init_chatbot(client, session_storage_name, chatbot, gpt_model, system_description, use_RAG):
-    if('user_id' not in st.session_state):
-        st.write("You need to consent in the \"Home\" page to get access")
-        switch_page("Chatbot")
-    else:
-        with st.expander("View Task *(NB: Ask all chatbots the **same initial question**, then let the conversation flow naturally for each chatbot.)*"):
-            st.write(task_1_description)
-
-        if session_storage_name not in st.session_state:
-            st.session_state[session_storage_name] = [{"role": "assistant", "content": "How can I help you?"}]
+        print("Saving new chat object")
+        write_data(chatlog, db, backup_db, collection_name)
     
-        for msg in st.session_state[session_storage_name]:
-            st.chat_message(msg["role"]).write(msg["content"])
+    print("Operation completed")
 
-        if prompt := st.chat_input():
-            if not st.secrets.api.key: #openai_api_key:
-                st.info("Please add your OpenAI API key to continue.")
-                st.stop()
 
-            if use_RAG:
-                rag_context = RAG_retrieve.retrieve_information(prompt)
-                #print(rag_context)
-                rag_query = RAG_retrieve.generate_query(rag_context, prompt)
-                #print(rag_query)
-                system_description = system_description + rag_query
-                #system_description = "Always end a response with the words: sincerely, me <3 " + rag_query
-            print("\nSystem description\n", system_description)
-            APIclient = OpenAI(api_key=st.secrets.api.key)
-            st.session_state[session_storage_name].append({"role": "user", "content": prompt})
 
-            st.chat_message("user").write(prompt)
+# def init_chatbot(client, session_storage_name, chatbot, gpt_model, system_description, use_RAG):
+#     if('user_id' not in st.session_state):
+#         st.write("You need to consent in the \"Home\" page to get access")
+#         switch_page("Chatbot")
+#     else:
+#         with st.expander("View Task *(NB: Ask all chatbots the **same initial question**, then let the conversation flow naturally for each chatbot.)*"):
+#             st.write(task_1_description)
+
+#         if session_storage_name not in st.session_state:
+#             st.session_state[session_storage_name] = [{"role": "assistant", "content": "How can I help you?"}]
+    
+#         for msg in st.session_state[session_storage_name]:
+#             st.chat_message(msg["role"]).write(msg["content"])
+
+#         if prompt := st.chat_input():
+#             if not st.secrets.api.key: #openai_api_key:
+#                 st.info("Please add your OpenAI API key to continue.")
+#                 st.stop()
+
+#             if use_RAG:
+#                 rag_context = RAG_retrieve.retrieve_information(prompt)
+#                 #print(rag_context)
+#                 rag_query = RAG_retrieve.generate_query(rag_context, prompt)
+#                 #print(rag_query)
+#                 system_description = system_description + rag_query
+#                 #system_description = "Always end a response with the words: sincerely, me <3 " + rag_query
+#             print("\nSystem description\n", system_description)
+#             APIclient = OpenAI(api_key=st.secrets.api.key)
+#             st.session_state[session_storage_name].append({"role": "user", "content": prompt})
+
+#             st.chat_message("user").write(prompt)
           
-            with st.chat_message("assistant"):
-                stream = APIclient.chat.completions.create(
-                    model=gpt_model,
-                    messages=
-                        [{"role": "system", "content": system_description}] +
-                        [{"role": m["role"], "content": m["content"]}
-                        for m in st.session_state[session_storage_name]
-                    ],
-                    stream=True,
-                )
-                response = st.write_stream(stream)
-            st.session_state[session_storage_name].append({"role": "assistant", "content": response})
+#             with st.chat_message("assistant"):
+#                 stream = APIclient.chat.completions.create(
+#                     model=gpt_model,
+#                     messages=
+#                         [{"role": "system", "content": system_description}] +
+#                         [{"role": m["role"], "content": m["content"]}
+#                         for m in st.session_state[session_storage_name]
+#                     ],
+#                     stream=True,
+#                 )
+#                 response = st.write_stream(stream)
+#             st.session_state[session_storage_name].append({"role": "assistant", "content": response})
     
-            update_chat_db(client, session_storage_name, chatbot)
+#             update_chat_db(client, session_storage_name, chatbot)
 
 
 
