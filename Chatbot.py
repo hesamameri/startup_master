@@ -1,6 +1,9 @@
 
 import pymongo
+from st_pages import hide_pages
 import streamlit as st
+
+from app_components import sidebar_nav
 st.set_page_config(layout="wide", page_title="ProjectGPT")
 import uuid
 from datetime import datetime
@@ -29,7 +32,7 @@ collection_access = 'cycle_3'
 #------------------------------------------PAGE LAYOUT----------------------------------------------------
 
 st.title("Welcome to ProjectGPT")
-
+hide_pages(["1 Project Buddy", "2 Your Progress","3 Customer Meeting"])
 def display_form():
     # """Displays the form for both new and returning users."""
     
