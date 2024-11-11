@@ -15,6 +15,8 @@ task_1_description = "In this user test, your task is to act as an early-stage t
 def check_user_login():
     if 'user_id' not in st.session_state:
         st.session_state['user_id'] = None
+        st.session_state['page'] = 'login'
+       
 
 def gather_feedback():
     # Initialize session state keys if they don't exist
@@ -28,7 +30,7 @@ def gather_feedback():
         'birth_year': 0,           # Default birth year
         'gpt_experience': 'unknown', # Default GPT experience
         'session_storage_name': {},  # Default session storage name
-        'is_logged_in': False,      # Default login status (False by default)
+     
     }
 
     # Initialize session_state with defaults if not already set
@@ -45,61 +47,61 @@ def gather_feedback():
         "birth_year": st.session_state['birth_year'],
         "ChatGPT_experience": st.session_state['gpt_experience'],
         "session_storage_name": st.session_state['session_storage_name'],
-        "is_logged_in": st.session_state['is_logged_in'],  # Include the login status
+        
     }
 
 def get_user_feedback(feedback):
     user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
     return user_feedback
 
-def handle_submit(is_new_user, submit_text, db, backup_db, button_container, collection_name):
+def handle_submit(is_new_user, db, backup_db, collection_name):
     """Handles the form submission for new and returning users."""
     if is_new_user:
         # Assign a new unique user ID and mark user as logged in
         st.session_state['user_id'] = str(uuid.uuid4())
-        st.session_state['is_logged_in'] = True  # Set is_logged_in to True after successful login
-
-    # Display a confirmation message after submission
-    st.toast("Thank you for submitting. You can still update the information and submit again.")
-    
-    # Update the submit button text and show additional information
-    if submit_text != "Click to update form information":
-        button_container.form_submit_button("Click to update form information")
-        st.info("You can now access the tasks in the sidebar")
-
+        st.session_state['is_logged_in'] = True
+        st.toast("Thank you for submitting. You are now logged in.")
+    else:
+        st.toast("You have successfully updated your information.")
+        
     # Process feedback and update the database
-    all_feedback = gather_feedback()  # Gather all feedback
-    update_chat_db(db, backup_db, session_storage_name=all_feedback['session_storage_name'], chatbot="chatbot_name", collection_name=collection_name)
+    # all_feedback = gather_feedback()  # Gather all feedback
+    # update_chat_db(db, backup_db, all_feedback['session_storage_name'], chatbot="chatbot_name", collection_name=collection_name)
+    st.session_state['page'] = 'terms'
+def study_approval():
+    st.session_state['page'] = 'project_buddy'
 
 def handle_withdrawal(withdraw_button_container, button_container, client, db, backup_db):
     """Handles the withdrawal process for a user in the study."""
     
     # Check if the user has an active session
-    if st.session_state.get('user_id') is None:
-        withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=True, help="You have not entered the study")
-    else:
-        # If user exists, allow them to withdraw
-        if withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=False):
-            print("Withdrawn")
+    # if st.session_state.get('user_id') is None:
+    #     withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=True, help="You have not entered the study")
+    # else:
+    #     # If user exists, allow them to withdraw
+    #     if withdraw_button_container.button("Click to withdraw from study", type="primary", disabled=False):
+    #         print("Withdrawn")
             
-            # Perform the data deletion from both databases
-            user_id = st.session_state['user_id']
-            if len(list(db.cycle_3.find({"Task-1.id": user_id}))) > 0:
-                db.cycle_3.delete_one({"Task-1.id": user_id})
-                backup_db.cycle_3.delete_one({"Task-1.id": user_id})
+    #         # Perform the data deletion from both databases
+    #         user_id = st.session_state['user_id']
+    #         if len(list(db.cycle_3.find({"Task-1.id": user_id}))) > 0:
+    #             db.cycle_3.delete_one({"Task-1.id": user_id})
+    #             backup_db.cycle_3.delete_one({"Task-1.id": user_id})
 
-            # Clear session state and reset the user ID
-            for key in st.session_state.keys():
-                del st.session_state[key]
+    #         # Clear session state and reset the user ID
+    #         for key in st.session_state.keys():
+    #             del st.session_state[key]
             
-            st.session_state['user_id'] = None
+    #         st.session_state['user_id'] = None
 
-            # Update UI with a confirmation message
-            withdraw_button_container.button("You have successfully withdrawn from the study. All data associated with you has been deleted", type="primary", disabled=True)
-            button_container.form_submit_button('Submit and consent to data usage as described on this page')
+    #         # Update UI with a confirmation message
+    #         withdraw_button_container.button("You have successfully withdrawn from the study. All data associated with you has been deleted", type="primary", disabled=True)
+    #         button_container.form_submit_button('Submit and consent to data usage as described on this page')
 
-            # Reload the page to reflect changes
-            streamlit_js_eval(js_expressions="parent.window.location.reload()")
+    #         # Reload the page to reflect changes
+    #         streamlit_js_eval(js_expressions="parent.window.location.reload()")
+    st.session_state['page'] = 'login'
+
 
 def get_selectbox_index(option_list, session_state_key):
     # """Returns the index of the current session state value in the options list, or None if not found."""
@@ -167,27 +169,26 @@ def get_userchat(chatlog, chatbot):
     return userchat
 
 def update_chat_db(db, backup_db, session_storage_name, chatbot, collection_name):
-    chatlog = get_chatlog(session_storage_name)  # Get chat log based on session storage name
+#     chatlog = get_chatlog(session_storage_name)  # Get chat log based on session storage name
     
-    print("Chatlog:", chatlog)
-    print("User ID:", st.session_state['user_id'])
+#     print("Chatlog:", chatlog)
+#     print("User ID:", st.session_state['user_id'])
 
-    # Check if the record exists
-    if db[collection_name].count_documents({"Task-1.id": st.session_state['user_id']}) > 0:
-        print("Updating existing chat object")
-        db[collection_name].update_one(
-            {"Task-1.id": st.session_state['user_id']},
-            {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
-        )
-        backup_db[collection_name].update_one(
-            {"Task-1.id": st.session_state['user_id']},
-            {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
-        )
-    else:
-        print("Saving new chat object")
-        write_data(chatlog, db, backup_db, collection_name)
-    
-    print("Operation completed")
+   
+#     if db[collection_name].count_documents({"Task-1.id": st.session_state['user_id']}) > 0:
+#         # print("Updating existing chat object")
+#         db[collection_name].update_one(
+#             {"Task-1.id": st.session_state['user_id']},
+#             {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
+#         )
+#         backup_db[collection_name].update_one(
+#             {"Task-1.id": st.session_state['user_id']},
+#             {"$set": {"Task-1.time": datetime.now(), f"Task-1.{chatbot}": chatlog}}
+#         )
+#     else:
+#         # print("Saving new chat object")
+#         write_data(chatlog, db, backup_db, collection_name)
+   pass
 
 
 

@@ -2,7 +2,6 @@
 import pymongo
 from st_pages import hide_pages
 import streamlit as st
-
 from app_components import sidebar_nav
 st.set_page_config(layout="wide", page_title="ProjectGPT")
 import uuid
@@ -10,7 +9,7 @@ from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi 
 from streamlit_js_eval import streamlit_js_eval
-from chatbot_utils import check_user_login, gather_feedback, handle_submit, handle_withdrawal, local_css, init_connection, update_chat_db, write_data
+from chatbot_utils import check_user_login, gather_feedback, handle_submit, handle_withdrawal, local_css, init_connection, study_approval, update_chat_db, write_data
 
 
 
@@ -23,27 +22,27 @@ check_user_login()
 connection_string = st.secrets["mongo"]["uri"]
 if connection_string:
     client = pymongo.MongoClient(connection_string)
-    print("successful connection")
+    
     db = client.usertests
     backup_db = client.usertests_backup
 else:
     raise ValueError("Invalid MongoDB URI. Please check your Streamlit secrets.")
 collection_access = 'cycle_3'
+collection_name = "default_collection" 
 #------------------------------------------PAGE LAYOUT----------------------------------------------------
 
 st.title("Welcome to ProjectGPT")
-hide_pages(["1 Project Buddy", "2 Your Progress","3 Customer Meeting"])
+
 def display_form():
     # """Displays the form for both new and returning users."""
-    
     
     st.subheader("Log In")
     #st.caption("Personal details")
     st.session_state['username'] = st.text_input("Enter your username", value=st.session_state.get('username', ''), placeholder="Group12_2025")
     st.session_state['password'] = st.text_input("Enter your password", value=st.session_state.get('password', ''), placeholder="mypassword", )
-    
-# Check if the user is already logged in (use session state)
-if not st.session_state.get('is_logged_in', False):
+
+if st.session_state['page'] == 'login':
+    print("form for False is_logged_in activated")
     # Display the form for users who are not logged in
     with st.form("test_form"):
         is_new_user = st.session_state.get('user_id') is None
@@ -58,17 +57,12 @@ if not st.session_state.get('is_logged_in', False):
 
         # Pass button_container along with other parameters to handle_submit
         if button_container.form_submit_button(submit_text):
-            handle_submit(is_new_user, submit_text, db, backup_db, button_container, collection_access)
+            handle_submit(is_new_user, submit_text, db, backup_db)
             # Explicitly set is_logged_in to True after the form is submitted
-            st.session_state['is_logged_in'] = True
             
-else:
-    # If already logged in, show an info message instead of the form
-    st.info("You are already logged in.")
-    
 
-
-if st.session_state.get('is_logged_in', False):
+# Default to 'terms' page if not set in session state
+if st.session_state.get('page', 'terms') == 'terms':
     # Show the information after the user logs in
     st.subheader("Information about the project")
     st.write("ProjectGPT is a prototype of a virtual assistant built on GPT technology. ProjectGPT will support students to learn from the courses")
@@ -77,17 +71,9 @@ if st.session_state.get('is_logged_in', False):
     st.write("Department of Economic and Informatikk, Business School, University of South Eastern Norway")
     
     st.subheader("Voluntary Participation")
-    st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw all the data obtained concerning you for this study is deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study click the button below:")
-    
-    withdraw_button_container = st.empty()
+    st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw, all the data obtained concerning you for this study will be deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study, click the button below:")
 
-    with st.container():
-        withdraw_button_container = st.empty()  # Empty container for dynamic button
-        button_container = st.empty()  # Another container for form buttons
-
-        # Call the handle_withdrawal function with the database connections
-        handle_withdrawal(withdraw_button_container, button_container, client, db, backup_db)
-
+    # Confidentiality and Data Protection
     st.subheader("Confidentiality and Data Protection")
     lst = [
         "We will only use your information for the purposes we have stated in this document.", 
@@ -102,7 +88,18 @@ if st.session_state.get('is_logged_in', False):
     st.subheader("What gives us the right to handle data about you?")
     st.write("We process information about you based on your consent.")
     st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
+
+    # Approval button for continuing the study
+    if st.button("Approve and Continue the Study"):
+        study_approval()
+        # Use the exact file name without the .py extension
+        st.switch_page("pages/Project_Buddy.py")
+    if st.button("Click to withdraw from the Study"):
+        # Handle the withdrawal process
+        handle_withdrawal(st, client, db, backup_db)
+        st.write("You have successfully withdrawn from the study. Your data will be deleted.")
+
 else:
     # Show a message or form to prompt the user to log in
     st.info("Please log in to view the project information.")
-
+    
