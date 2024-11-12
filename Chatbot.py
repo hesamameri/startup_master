@@ -3,6 +3,7 @@ import pymongo
 from st_pages import hide_pages
 import streamlit as st
 from app_components import sidebar_nav
+from auth import authenticate, load_user_credentials
 st.set_page_config(layout="wide", page_title="ProjectGPT")
 import uuid
 from datetime import datetime
@@ -19,50 +20,52 @@ local_css("./styles.css")
 check_user_login()
 #------------------------------------------DATABASE CONNECTION-------------------------------------------
 # client = init_connection()
-connection_string = st.secrets["mongo"]["uri"]
-if connection_string:
-    client = pymongo.MongoClient(connection_string)
-    
-    db = client.usertests
-    backup_db = client.usertests_backup
-else:
-    raise ValueError("Invalid MongoDB URI. Please check your Streamlit secrets.")
-collection_access = 'cycle_3'
-collection_name = "default_collection" 
+# connection_string = st.secrets["mongo"]["uri"]
+# if connection_string:
+#     client = pymongo.MongoClient(connection_string)
+#     db = client['users']
+# else:
+#     raise ValueError("Invalid MongoDB URI. Please check your Streamlit secrets.")
+# # collection_access = 'cycle_3'
+# collection_name = "usertests" 
 #------------------------------------------PAGE LAYOUT----------------------------------------------------
 
 st.title("Welcome to ProjectGPT")
 
-def display_form():
-    # """Displays the form for both new and returning users."""
+def login_form():
+    """Displays the form for both new and returning users."""
     
     st.subheader("Log In")
-    #st.caption("Personal details")
-    st.session_state['username'] = st.text_input("Enter your username", value=st.session_state.get('username', ''), placeholder="Group12_2025")
-    st.session_state['password'] = st.text_input("Enter your password", value=st.session_state.get('password', ''), placeholder="mypassword", )
+    
+    # st.caption("Enter your personal details")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    return username, password
 
 if st.session_state['page'] == 'login':
-    print("form for False is_logged_in activated")
+    # print("form for False is_logged_in activated")
     # Display the form for users who are not logged in
     with st.form("test_form"):
         is_new_user = st.session_state.get('user_id') is None
-
-        display_form()  # Show the login form
-
+        
+        username,password = login_form()  # Show the login form
+        
         # Set the submit button text based on the user status
-        submit_text = "Log In" if is_new_user else "Click to update form information"
+        submit_text = "Log In" 
         
         # Create a button container to manage the form button
         button_container = st.empty()
-
+        
         # Pass button_container along with other parameters to handle_submit
         if button_container.form_submit_button(submit_text):
-            handle_submit(is_new_user, submit_text, db, backup_db)
+            handle_submit(is_new_user,username,password)
             # Explicitly set is_logged_in to True after the form is submitted
             
 
 # Default to 'terms' page if not set in session state
 if st.session_state.get('page', 'terms') == 'terms':
+    
     # Show the information after the user logs in
     st.subheader("Information about the project")
     st.write("ProjectGPT is a prototype of a virtual assistant built on GPT technology. ProjectGPT will support students to learn from the courses")
@@ -93,10 +96,12 @@ if st.session_state.get('page', 'terms') == 'terms':
     if st.button("Approve and Continue the Study"):
         study_approval()
         # Use the exact file name without the .py extension
+        st.session_state['notification'] = False
         st.switch_page("pages/Project_Buddy.py")
+
     if st.button("Click to withdraw from the Study"):
         # Handle the withdrawal process
-        handle_withdrawal(st, client, db, backup_db)
+        handle_withdrawal()
         st.write("You have successfully withdrawn from the study. Your data will be deleted.")
 
 else:

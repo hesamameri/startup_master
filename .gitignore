@@ -5,3 +5,4 @@ secrets.toml
 venv
 *.txt
 check_database_connect.py
+responses.json

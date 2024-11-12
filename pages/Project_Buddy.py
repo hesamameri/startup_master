@@ -7,10 +7,41 @@ import streamlit as st
 from email.policy import default
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+import openai
+from datetime import datetime
+import pymongo
+import json
+
+
 st.set_page_config(layout = "wide", page_title="StartupGPT")
 from auth import log_out
+if 'page' not in st.session_state:  # Check if 'page' key exists
+    st.session_state['page'] = 'login'
+# pop up welcome message
+if 'notification' not in st.session_state:
+    st.session_state['notification'] = True
+elif st.session_state['notification'] == False:
+    username = st.session_state["username"]
+    st.markdown(
+        f"""
+        <div style="
+            padding: 20px; 
+            background-color: #e0f7fa; 
+            color: #006064; 
+            font-size: 24px; 
+            font-weight: bold;
+            border-radius: 10px;
+            text-align: center;
+            ">
+            Welcome to PRO1000, {username}!
+        
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.session_state['notification'] = True
 
-#import app_components as components 
+
 #import chatbot_utils as cu
 st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
@@ -24,21 +55,37 @@ starting_line = "Let's roleplay. Act as a project owner who will convert three l
 def get_response(jim_line):
     output =  "dummy"
     return output 
-                                                                                                                                                                                                                 
+                                                                                                                           
+openai.api_key = st.secrets["api"]["key"]
+
 tab1, tab2 = st.tabs(["Interactive Tutor", "Step-by-step Guideline"])
 
+# Interactive Tutor Tab
 with tab1:
     st.title("🏢 Interactive Tutor")
-    st.markdown ("""
-        Ask for explanation and examples by input a prompt.
+    st.markdown("""
+        Ask for explanation and examples by inputting a prompt.
     """, unsafe_allow_html=True)
+
     with st.form("my_form"):
-        jim_line = st.text_area("Write you command here","", height=10, key='option')
+        jim_line = st.text_area("Write your command here:", "", height=10, key='option')
         submitted = st.form_submit_button("Submit")
 
+    if submitted and jim_line:
+        # Call GPT-4 API on form submission
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": jim_line}
+            ]
+        )
+        st.write("Response from GPT-4:")
+        st.write(response.choices[0].message.content)  # Output the response from GPT-4
 
+# Step-by-step Guideline Tab
 with tab2:
-    st.title("🏢 Step-by-step guideline")
+    st.title("🏢 Step-by-step Guideline")
     st.markdown("""
     Have you done with:  
         1. Project planning 
@@ -54,3 +101,98 @@ with tab2:
     """)
 
 
+
+# openai.api_key = st.secrets["api"]["key"]
+
+# tab1, tab2 = st.tabs(["Interactive Tutor", "Step-by-step Guideline"])
+
+# # Function to save data to JSON file
+# def save_to_json(user_input, api_response):
+#     data = {
+#         "user_input": user_input,
+#         "api_response": api_response
+#     }
+    
+#     # Load existing data from the JSON file if it exists
+#     try:
+#         with open("responses.json", "r") as f:
+#             all_data = json.load(f)
+#     except (FileNotFoundError, json.JSONDecodeError):
+#         all_data = []
+
+#     # Append new data to the list
+#     all_data.append(data)
+
+#     # Save the updated list back to the JSON file
+#     with open("responses.json", "w") as f:
+#         json.dump(all_data, f, indent=4)
+
+# # Function to load conversation history
+# def load_conversation():
+#     try:
+#         with open("responses.json", "r") as f:
+#             return json.load(f)
+#     except (FileNotFoundError, json.JSONDecodeError):
+#         return []
+
+# # Interactive Tutor Tab
+# with tab1:
+#     st.title("🏢 Interactive Tutor")
+#     st.markdown("""
+#         Ask for explanation and examples by inputting a prompt.
+#     """, unsafe_allow_html=True)
+
+#     # Load the previous conversation history
+#     conversation_history = load_conversation()
+
+#     # Display only the most recent interaction (if any)
+#     if conversation_history:
+#         # Show the last interaction
+#         last_entry = conversation_history[-1]
+#         st.markdown(f"**User:** {last_entry['user_input']}")
+#         st.markdown(f"**GPT-4:** {last_entry['api_response']}")
+#         st.markdown("---")  # Separator for clarity
+
+#     # Input form for new message
+#     with st.form("my_form", clear_on_submit=True):
+#         jim_line = st.text_area("Write your command here:", "", height=10, key='option')  # Unique key for the form input
+#         submitted = st.form_submit_button("Submit")
+
+#     if submitted and jim_line:
+#         # Call GPT-4 API on form submission
+#         response = openai.chat.completions.create(
+#             model="gpt-4",
+#             messages=[
+#                 {"role": "system", "content": "You are a helpful assistant."},
+#                 {"role": "user", "content": jim_line}
+#             ]
+#         )
+#         api_response = response.choices[0].message.content
+        
+#         # Save user input and API response to JSON
+#         save_to_json(jim_line, api_response)
+
+#         # Display the new message
+#         st.markdown(f"**User:** {jim_line}")
+#         st.markdown(f"**GPT-4:** {api_response}")
+#         st.markdown("---")
+
+#     # Ensure the input box always stays at the bottom with a unique key
+ 
+
+# # Step-by-step Guideline Tab
+# with tab2:
+#     st.title("🏢 Step-by-step Guideline")
+#     st.markdown("""
+#     Have you done with:  
+#         1. Project planning 
+#         2. WBS 
+#         3. Gantt Chart 
+#         4. Project implementation 
+#         5. Requirement description 
+#         6. Team and role assignment 
+#         7. Prototyping  
+#         8. Github and project configuration  
+#         9. Meetings 
+#         10. Testing
+#     """)

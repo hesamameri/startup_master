@@ -8,6 +8,8 @@ import RAG_retrieve
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
+from auth import authenticate, load_user_credentials
+
 task_1_description = "In this user test, your task is to act as an early-stage tech startup that is in the process of idea validation and developing your first prototype. Ask the chatbots questions you would consider natural for an early-stage startup to have regarding idea validation and early prototype development. Test out all the chatbots (Chatbot 1, Chatbot 2 and Chatbot 3), then answer the questionnaire. Ask all chatbots the same initial question, then let the conversation flow naturally for each chatbot."
 
 # User utils
@@ -54,24 +56,28 @@ def get_user_feedback(feedback):
     user_feedback = {"Task-1":{"id": st.session_state['user_id'], "time": datetime.now(), "Chatbot_versions": "C1: dem+rag, C2: dem, C3: dem+prompt+rag", "Demographic": feedback}}
     return user_feedback
 
-def handle_submit(is_new_user, db, backup_db, collection_name):
+def handle_submit(is_new_user,username,password):
     """Handles the form submission for new and returning users."""
-    if is_new_user:
+    
+    if authenticate(username, password):
         # Assign a new unique user ID and mark user as logged in
         st.session_state['user_id'] = str(uuid.uuid4())
         st.session_state['is_logged_in'] = True
+        st.session_state['username'] = username
+        st.session_state['password'] = password
         st.toast("Thank you for submitting. You are now logged in.")
+        st.session_state['page'] = 'terms'
     else:
-        st.toast("You have successfully updated your information.")
+        st.error("wrong password or username")
         
     # Process feedback and update the database
     # all_feedback = gather_feedback()  # Gather all feedback
     # update_chat_db(db, backup_db, all_feedback['session_storage_name'], chatbot="chatbot_name", collection_name=collection_name)
-    st.session_state['page'] = 'terms'
+    
 def study_approval():
     st.session_state['page'] = 'project_buddy'
 
-def handle_withdrawal(withdraw_button_container, button_container, client, db, backup_db):
+def handle_withdrawal():
     """Handles the withdrawal process for a user in the study."""
     
     # Check if the user has an active session
@@ -101,6 +107,7 @@ def handle_withdrawal(withdraw_button_container, button_container, client, db, b
     #         # Reload the page to reflect changes
     #         streamlit_js_eval(js_expressions="parent.window.location.reload()")
     st.session_state['page'] = 'login'
+    st.session_state['user_id'] = None
 
 
 def get_selectbox_index(option_list, session_state_key):
