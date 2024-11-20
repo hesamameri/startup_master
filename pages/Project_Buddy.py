@@ -51,21 +51,24 @@ elif st.session_state['notification'] == False:
 
 if "chat_id_status" not in st.session_state:
     st.session_state['chat_id_status'] = False
+print(st.session_state)
 username = st.session_state["username"]
 
-            # Example of how to fetch chat history using the numeric chat_id
-            # You can now query your database using the numeric chat_id to fetch messages
-            # Example:
-            # fetch_chat_history(chat_id)  # Function to fetch messages based on chat_id
+if st.session_state['chat_id_status'] == False:
+    chats = collection.find({"username":username})
+    if chats:
+        with st.sidebar.expander("Project Buddy", expanded=False):
             
-            # For simulation, let's display the chat ID fetched:
+            for chat in chats:
+                if st.button(chat['title']):
+                    st.write(chat['chat_id'])
+                    
+
+    else:
+
+        st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+
             
-            
-            # Here you would typically query your MongoDB database to retrieve the messages
-            # For example, if using pymongo to fetch chat data:
-            # result = collection.find_one({"chat_id": chat_id})
-            # st.write(result['messages'])  # Displaying messages (for example purposes)
-#import chatbot_utils as cu
 st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Customer_Meeting.py', label='Customer Meeting')
