@@ -2,13 +2,13 @@ import streamlit as st
 import toml
 import pymongo
 import bcrypt
-def load_user_credentials():
-    try:
-        secrets = toml.load(".streamlit/secrets.toml")  # Assuming the secrets.toml file is in the same directory
-        return secrets.get("users", {})
-    except Exception as e:
-        st.error(f"Failed to load credentials from secrets.toml: {e}")
-        return {}
+# def load_user_credentials():
+#     try:
+#         secrets = toml.load(".streamlit/secrets.toml")  # Assuming the secrets.toml file is in the same directory
+#         return secrets.get("users", {})
+#     except Exception as e:
+#         st.error(f"Failed to load credentials from secrets.toml: {e}")
+#         return {}
 
 
 

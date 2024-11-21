@@ -3,7 +3,7 @@ import pymongo
 from st_pages import hide_pages
 import streamlit as st
 from app_components import sidebar_nav
-from auth import authenticate, load_user_credentials
+from auth import authenticate
 st.set_page_config(layout="wide", page_title="ProjectGPT")
 import uuid
 from datetime import datetime
