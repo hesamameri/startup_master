@@ -33,4 +33,8 @@ def authenticate(username, password, database_name='users', collection_name='use
 def log_out():
     st.session_state['user_id'] = None
     st.session_state['page'] = 'login'
+    if 'chat_id_status' in st.session_state:
+        del st.session_state["chat_id_status"]
+    if 'chat_activated' in st.session_state:
+        del st.session_state["chat_activated"]
     st.switch_page('Chatbot.py')
