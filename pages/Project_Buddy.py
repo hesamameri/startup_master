@@ -56,48 +56,114 @@ username = st.session_state["username"]
 
 if "chat_activated" not in st.session_state:
     st.session_state['chat_activated'] = False
+from datetime import datetime
+
 if 'chat_id_status' not in st.session_state:
-    
-    
-    chats = collection.find({"username": username})
-    count = collection.count_documents({"username": username})
+    chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
+    count = len(chats)  # Count documents directly from the list
     print("A works and id_status will be assigned true")
     st.session_state['chat_id_status'] = True
-    if chats and count>0:
+
+    if chats and count > 0:
         print("B works")
-        # NEED TO USE GROUP BY TO GROUP THE CHATS BASED ON THEIR TIMESTAMP(DAY OF CREATION ! )
+
+        grouped_chats = {}
+        for chat in chats:
+            # Check the structure of `created_at` and handle accordingly
+            if isinstance(chat['created_at'], datetime):
+                created_at = chat['created_at'].date()
+            else:
+                created_at = datetime.fromtimestamp(
+                    int(chat['created_at']['$date']['$numberLong']) / 1000
+                ).date()
+
+            grouped_chats.setdefault(created_at, []).append(chat)
+
         with st.sidebar.expander("Project Buddy", expanded=False):
-                for chat in chats:
-                    
-                    # Print the entire chat document to the console
-                    # This will print to the terminal or log
+            for date, chats_for_date in grouped_chats.items():
+                st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                for chat in chats_for_date:
                     if st.button(chat['title']):
                         st.write(chat['chat_id'])
-               
+
     else:
-        
         print("C works")
         st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+
 else:
     if st.session_state['chat_id_status'] == True:
         print("D works")
-        chats = collection.find({"username": username})
-        count = collection.count_documents({"username": username})
-        
-        if chats and count>0:
+        chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
+        count = len(chats)
+
+        if chats and count > 0:
             print("F works")
+
+            grouped_chats = {}
+            for chat in chats:
+                # Check the structure of `created_at` and handle accordingly
+                if isinstance(chat['created_at'], datetime):
+                    created_at = chat['created_at'].date()
+                else:
+                    created_at = datetime.fromtimestamp(
+                        int(chat['created_at']['$date']['$numberLong']) / 1000
+                    ).date()
+
+                grouped_chats.setdefault(created_at, []).append(chat)
+
             with st.sidebar.expander("Project Buddy", expanded=False):
-                for chat in chats:
-                    print(chat)
-                    # Print the entire chat document to the console
-                    # This will print to the terminal or log
-                    if st.button(chat['title']):
-                        st.write(chat['chat_id'])
+                for date, chats_for_date in grouped_chats.items():
+                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                    for chat in chats_for_date:
+                        if st.button(chat['title']):
+                            st.write(chat['chat_id'])
+
+        else:
+            print("H works")
+            st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+
+# if 'chat_id_status' not in st.session_state:
+    
+    
+#     chats = collection.find({"username": username})
+#     count = collection.count_documents({"username": username})
+#     print("A works and id_status will be assigned true")
+#     st.session_state['chat_id_status'] = True
+#     if chats and count>0:
+#         print("B works")
+#         # NEED TO USE GROUP BY TO GROUP THE CHATS BASED ON THEIR TIMESTAMP(DAY OF CREATION ! )
+#         with st.sidebar.expander("Project Buddy", expanded=False):
+#                 for chat in chats:
+                    
+#                     # Print the entire chat document to the console
+#                     # This will print to the terminal or log
+#                     if st.button(chat['title']):
+#                         st.write(chat['chat_id'])
+               
+#     else:
+        
+#         print("C works")
+#         st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+# else:
+#     if st.session_state['chat_id_status'] == True:
+#         print("D works")
+#         chats = collection.find({"username": username})
+#         count = collection.count_documents({"username": username})
+        
+#         if chats and count>0:
+#             print("F works")
+#             with st.sidebar.expander("Project Buddy", expanded=False):
+#                 for chat in chats:
+#                     print(chat)
+#                     # Print the entire chat document to the console
+#                     # This will print to the terminal or log
+#                     if st.button(chat['title']):
+#                         st.write(chat['chat_id'])
             
-    else:
-        print(" H works")
+#     else:
+#         print(" H works")
        
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+#         st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
 
     
 
