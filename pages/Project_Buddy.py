@@ -56,7 +56,7 @@ username = st.session_state["username"]
 
 if "chat_activated" not in st.session_state:
     st.session_state['chat_activated'] = False
-from datetime import datetime
+
 
 if 'chat_id_status' not in st.session_state:
     chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
@@ -84,7 +84,8 @@ if 'chat_id_status' not in st.session_state:
                 st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
                     if st.button(chat['title']):
-                        st.write(chat['chat_id'])
+                        st.session_state['chat_id'] = chat['chat_id']
+                        st.session_state['chat_activated'] = True
 
     else:
         print("C works")
@@ -116,7 +117,8 @@ else:
                     st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     for chat in chats_for_date:
                         if st.button(chat['title']):
-                            st.write(chat['chat_id'])
+                            st.session_state['chat_id'] = chat['chat_id']
+                            st.session_state['chat_activated'] = True
 
         else:
             print("H works")
