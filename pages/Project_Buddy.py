@@ -124,57 +124,16 @@ else:
             print("H works")
             st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
 
-# if 'chat_id_status' not in st.session_state:
-    
-    
-#     chats = collection.find({"username": username})
-#     count = collection.count_documents({"username": username})
-#     print("A works and id_status will be assigned true")
-#     st.session_state['chat_id_status'] = True
-#     if chats and count>0:
-#         print("B works")
-#         # NEED TO USE GROUP BY TO GROUP THE CHATS BASED ON THEIR TIMESTAMP(DAY OF CREATION ! )
-#         with st.sidebar.expander("Project Buddy", expanded=False):
-#                 for chat in chats:
-                    
-#                     # Print the entire chat document to the console
-#                     # This will print to the terminal or log
-#                     if st.button(chat['title']):
-#                         st.write(chat['chat_id'])
-               
-#     else:
-        
-#         print("C works")
-#         st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
-# else:
-#     if st.session_state['chat_id_status'] == True:
-#         print("D works")
-#         chats = collection.find({"username": username})
-#         count = collection.count_documents({"username": username})
-        
-#         if chats and count>0:
-#             print("F works")
-#             with st.sidebar.expander("Project Buddy", expanded=False):
-#                 for chat in chats:
-#                     print(chat)
-#                     # Print the entire chat document to the console
-#                     # This will print to the terminal or log
-#                     if st.button(chat['title']):
-#                         st.write(chat['chat_id'])
-            
-#     else:
-#         print(" H works")
-       
-#         st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
-
-    
+  
 
 
 
             
-
+st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
-st.sidebar.page_link('pages/Customer_Meeting.py', label='Customer Meeting')
+
+st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
+st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
 
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked

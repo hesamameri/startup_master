@@ -1,13 +1,14 @@
-from datetime import datetime
+import openai
 import pymongo
 import streamlit as st
-import extra_streamlit_components as stx
-import time
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from datetime import datetime
 from streamlit_extras.switch_page_button import switch_page
-st.set_page_config(layout="wide")
+import app_components as components
 from auth import log_out 
-import openai
-# st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+
+st.set_page_config(layout = "wide", page_title="Customer Meeting")
 openai.api_key = st.secrets["api"]["key"]
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
@@ -113,34 +114,29 @@ else:
             print("H works")
             st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
 
-#################
+  
+
+
+
+            
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
-
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
 st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
+
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked
-
-
-st.header("Summary of your team progress")
-
-today = date.today()
-st.write("Here we summarize your learning progress up to ", today)
-
-my_coursetime = st.progress(20, text="You have completed 3/ 15 study weeks of this course")
-my_assignment = st.progress(20, text="You have completed 5/ 25 exercises in this course")
-my_milestones = st.progress(33, text="You have completed 1/ 3 obligatory milestones in this course")
-my_meeting = st.progress(33, text="You have completed 1/ 10 obligatory meetings in this course")
-my_agile = st.progress(33, text="You have completed 5/ 10 suggested Agile practices in this course")
-my_product = st.progress(10, text="You have completed 2/ 20 requirements in this course")
-
-st.write("Here is our feedback on your progress")
-
-st.write("Team: It looks like you have established your team! Do you get more meeting with other team members? Have you considered using a team contract to improve commitment within the team?")
-st.write("Customer: Here is the summary of your conversation with the customer so far. Make sure the request from the customers correctly understood!")
-st.write("Knowledge module: At this time, you should have completed module 2 with creating WBS for your project. Are you not sure if it is not correct? Send an email to the lecturer for feedback: anguatusn.no")
-st.write("Process: Do you define how you and teammates will work together? We suggest to follow Scrum method. Let start the first Srpint. More information, read Module 4")
-st.write("Product: It is still early to work with the website now. However, you might want to look at websites about HTML, CSS to learn about web development!")
-st.write("Report: It is early to work with the report now. Obligagory Assignment 1 is the closet formal milestone.")
+col1, col2 = st.columns([1, 3])
+with col1:
+        st.header("Reidar Hellegurd")
+        st.image("https://www.nih.no/om/ansatte/reidars/reidar_safvenbom_250x250.jpg",width=300)
+with col2:
+        st.markdown("The meetings with customers are scheduled. Today you will talk to your Customer Reidar Hellegurd")
+        st.markdown("The objective of the meeting is to clarify the customer's need. Read the project description and prepare your questions. An example of questions can be - What is the prefered color scheme for the home page? How the cover photo should look like? ")
+        st.markdown ("""
+                Ask for explanation and examples by input a prompt.
+            """, unsafe_allow_html=False)
+        with st.form("my_form"):
+                jim_line = st.text_area("Write you question here","", height=70)
+                submitted = st.form_submit_button("Submit")
 
