@@ -80,7 +80,7 @@ if 'chat_id_status' not in st.session_state:
             grouped_chats.setdefault(created_at, []).append(chat)
 
         with st.sidebar.expander("Project Buddy", expanded=False):
-            for date, chats_for_date in grouped_chats.items():
+            for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                 st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
                     if st.button(chat['title']):
@@ -113,7 +113,7 @@ else:
                 grouped_chats.setdefault(created_at, []).append(chat)
 
             with st.sidebar.expander("Project Buddy", expanded=False):
-                for date, chats_for_date in grouped_chats.items():
+                for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                     st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     for chat in chats_for_date:
                         if st.button(chat['title']):
