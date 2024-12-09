@@ -143,52 +143,49 @@ starting_line = ''
 def get_response(jim_line):
     output =  "dummy"
     return output 
-                                                                                                                                                                                                                 
+                                                                                                                                                                                                               
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["General", "Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6", "Module 7", "Module 8"])
-
-# with tab1:
-#     col01, col02 = st.columns([1, 2])
-#     with col01:
-#         st.video("pages/game.mp4")
-#     with col02:
-#         st.write("Chào mừng bạn đến với trò chơi thú vị này với Trí tuệ nhân tạo sáng tạo. Chúng tôi sẽ có ba trò chơi để khám phá khả năng sáng tạo của bạn với GenAI. Trò chơi đầu tiên có tên là Y Tường Sang Tạo. Trong trò chơi này, bạn sẽ viết ý tưởng cho một yêu cầu. Ý tưởng sáng tạo nhất sẽ đạt điểm cao nhất. Trò chơi thứ hai có tên là Kết Chu Thanh Truyền. Bạn cho tôi hai từ không liên quan, tôi sẽ viết một truyện ngắn dựa trên đó. Câu chuyện độc đáo, sáng tạo nhất sẽ đạt điểm cao nhất. Trò chơi thứ ba có tên là Thu trí thông minh của AI. Trong trò chơi này, bạn sẽ cho tôi một câu hỏi mà tôi có thể trả lời sai. Bạn cần biết câu trả lời chính xác. Nếu bạn có thể bắt tôi trả lời sai thì bạn sẽ được điểm.")
-#     #with st.form("my_form"):
-#         #jim_line = st.text_area("Write your question here","", height=70)
-#         #submitted = st.form_submit_button("Submit")
-#     if "openai_model" not in st.session_state:
-#         st.session_state["openai_model"] = "gpt-4o"        
-#     if "messages" not in st.session_state:
-#         st.session_state.messages = []        
-#     for message in st.session_state.messages:
-#         with st.chat_message(message["role"]):
-#             st.markdown(message["content"])        
-#     if prompt := st.chat_input("What is up?"):
-#         game_instruction = "Act as a judge in a game about creativity in AI. In the first game called YTUONGSANGTAO, you will judge an idea for a idea of buying a Christmas gift now for yourself in 10 years time. Evalaute the answer basing on its creativity measured by  Novelty is the extent to which an idea is new, surprising, or different from existing solutions. Usefulness is the degree to which an idea is relevant, effective, or beneficial for the future of a mid-age Vietnamese person settled in Norway. Feasibility is the degree to which an idea is realistic, practical, or achievable with a person income around 50000 to 70000 usd per year. In the second game called NOICHUTHANHTRUYEN, players provide two unrelated words and a theme, like penguin, astronaut and adventure story. You create a short scenario or explanation connecting the two words following the theme. The scenario should be less than 120 words. Three evaluation criteria for this game are 1. Rare word combination - the uncommon of the used words, the less likelihood the word combination is, the better score it has. 2. Creative story plot - the more uncommon, or suprised plot development, the better score it has. 3. Plot logic - the more logic the generated story is the better score it has.  Give a score out of 10 for each criteria dimension, and the overall average score for the game, and explain your choice with the evaluation criteria. The third game is called THUTHACHAI. Answer the questions that players enter. Ask the players if the generated answer is correct or not. If it is not the player will get 3 points. Track the scores of all people. We will summarize the game when I say to end the game. Do all answer in Vietnamese!"
-#         st.session_state.messages.append({"role": "system", "content": game_instruction})
-#         st.session_state.messages.append({"role": "user", "content": prompt})
-#         with st.chat_message("user"):
-#             st.markdown(prompt)
-#         with st.chat_message("assistant"):
-#             stream = client.chat.completions.create(
-#                 model=st.session_state["openai_model"],
-#                 messages=[
-#                     {"role": m["role"], "content": m["content"]}
-#                     for m in st.session_state.messages
-#                 ],
-#                 stream=True,
-#             )
-#             response = st.write_stream(stream)
-#             response2 = client.audio.speech.create(
-#                 model="tts-1",
-#                 voice="nova",
-#                 input=response
-#             )
-#             response2.write_to_file("output1.mp3")
-#             with open("output1.mp3", "rb") as audio_file:
-#                 st.audio(audio_file, format='audio/mp3')
-#         st.session_state.messages.append({"role": "assistant", "content": response})
-
-
+with tab1:
+    col01, col02 = st.columns([1, 2])
+    with col01:
+        st.video("pages/game.mp4")
+    with col02:
+        st.write("Chào mừng bạn đến với trò chơi thú vị này với Trí tuệ nhân tạo sáng tạo. Chúng tôi sẽ có ba trò chơi để khám phá khả năng sáng tạo của bạn với GenAI. Trò chơi đầu tiên có tên là Y Tường Sang Tạo. Trong trò chơi này, bạn sẽ viết ý tưởng cho một yêu cầu. Ý tưởng sáng tạo nhất sẽ đạt điểm cao nhất. Trò chơi thứ hai có tên là Kết Chu Thanh Truyền. Bạn cho tôi hai từ không liên quan, tôi sẽ viết một truyện ngắn dựa trên đó. Câu chuyện độc đáo, sáng tạo nhất sẽ đạt điểm cao nhất. Trò chơi thứ ba có tên là Thu trí thông minh của AI. Trong trò chơi này, bạn sẽ cho tôi một câu hỏi mà tôi có thể trả lời sai. Bạn cần biết câu trả lời chính xác. Nếu bạn có thể bắt tôi trả lời sai thì bạn sẽ được điểm.")
+    #with st.form("my_form"):
+        #jim_line = st.text_area("Write your question here","", height=70)
+        #submitted = st.form_submit_button("Submit")
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-4o"        
+    if "messages" not in st.session_state:
+        st.session_state.messages = []        
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])        
+    if prompt := st.chat_input("What is up?"):
+        game_instruction = "Act as a judge in a game about creativity in AI. In the first game called YTUONGSANGTAO, you will judge an idea for a idea of buying a Christmas gift now for yourself in 10 years time. Evalaute the answer basing on its creativity measured by  Novelty is the extent to which an idea is new, surprising, or different from existing solutions. Usefulness is the degree to which an idea is relevant, effective, or beneficial for the future of a mid-age Vietnamese person settled in Norway. Feasibility is the degree to which an idea is realistic, practical, or achievable with a person income around 50000 to 70000 usd per year. In the second game called NOICHUTHANHTRUYEN, players provide two unrelated words and a theme, like penguin, astronaut and adventure story. You create a short scenario or explanation connecting the two words following the theme. The scenario should be less than 120 words. Three evaluation criteria for this game are 1. Rare word combination - the uncommon of the used words, the less likelihood the word combination is, the better score it has. 2. Creative story plot - the more uncommon, or suprised plot development, the better score it has. 3. Plot logic - the more logic the generated story is the better score it has.  Give a score out of 10 for each criteria dimension, and the overall average score for the game, and explain your choice with the evaluation criteria. The third game is called THUTHACHAI. Answer the questions that players enter. Ask the players if the generated answer is correct or not. If it is not the player will get 3 points. Track the scores of all people. We will summarize the game when I say to end the game. Do all answer in Vietnamese!"
+        st.session_state.messages.append({"role": "system", "content": game_instruction})
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                stream=True,
+            )
+            response = st.write_stream(stream)
+            response2 = client.audio.speech.create(
+                model="tts-1",
+                voice="nova",
+                input=response
+            )
+            response2.write_to_file("output1.mp3")
+            with open("output1.mp3", "rb") as audio_file:
+                st.audio(audio_file, format='audio/mp3')
+        st.session_state.messages.append({"role": "assistant", "content": response})
 with tab2:
     st.image("https://miro.medium.com/v2/resize:fit:720/format:webp/1*fiEXMWcFg328ztjZEWYlpg.jpeg", width=400)
     col1, col2, col3, col4 = st.columns(4)
@@ -252,7 +249,6 @@ with tab5:
             jim_email= st.text_input("Email to receive feedback", "12345678@std.usn")
             jim_line = st.text_area("Write your exercise here","", height=200)
             submitted = st.form_submit_button("Submit")
-
 with tab6:
     st.image("https://scrumorg-website-prod.s3.amazonaws.com/drupal/inline-images/2023-09/scrum-framework-9.29.23.png", width=400)
     col16, col17 = st.columns(2)
@@ -277,7 +273,6 @@ with tab7:
             jim_email= st.text_input("Email to receive feedback", "12345678@std.usn")
             jim_line = st.text_area("Write your exercise here","", height=200)
             submitted = st.form_submit_button("Submit")
-
 with tab8:
     st.image("https://www.tatvasoft.com/outsourcing/wp-content/uploads/2022/11/difference-between-software-testing-vs-quality-assurance.jpg", width=400)
     col20, col21, col22 = st.columns(3)
@@ -292,7 +287,6 @@ with tab8:
             jim_email= st.text_input("Email to receive feedback", "12345678@std.usn")
             jim_line = st.text_area("Write your exercise here","", height=200)
             submitted = st.form_submit_button("Submit")
-
 with tab9:
     st.image("https://business.adobe.com/blog/basics/media_1f189f1c2c3c424441541e86d7b8b729ad795f205.jpeg", width=400)
     col23, col24, col25 = st.columns(3)

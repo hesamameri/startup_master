@@ -197,6 +197,26 @@ def update_chat_db(db, backup_db, session_storage_name, chatbot, collection_name
 #         write_data(chatlog, db, backup_db, collection_name)
    pass
 
+# Project Module Utils 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # def init_chatbot(client, session_storage_name, chatbot, gpt_model, system_description, use_RAG):
