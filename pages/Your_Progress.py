@@ -69,7 +69,7 @@ if 'chat_id_status' not in st.session_state:
 
             grouped_chats.setdefault(created_at, []).append(chat)
 
-        with st.sidebar.expander("Project Buddy", expanded=False):
+        with st.sidebar.expander("Chat History", expanded=False):
             for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                 st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
@@ -80,7 +80,7 @@ if 'chat_id_status' not in st.session_state:
 
     else:
         print("C works")
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
 
 else:
     if st.session_state['chat_id_status'] == True:
@@ -103,7 +103,7 @@ else:
 
                 grouped_chats.setdefault(created_at, []).append(chat)
 
-            with st.sidebar.expander("Project Buddy", expanded=False):
+            with st.sidebar.expander("Chat History", expanded=False):
                 for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                     st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     for chat in chats_for_date:
@@ -114,9 +114,13 @@ else:
 
         else:
             print("H works")
-            st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+            st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
 
 #################
+chat_button = st.sidebar.button("Start New Chat") 
+if chat_button:
+    st.session_state['chat_activated'] = False
+    st.switch_page('pages/Project_Buddy.py')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 

@@ -78,7 +78,7 @@ if 'chat_id_status' not in st.session_state:
 
             grouped_chats.setdefault(created_at, []).append(chat)
 
-        with st.sidebar.expander("Project Buddy", expanded=False):
+        with st.sidebar.expander("Chat History", expanded=False):
             for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                 st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
@@ -89,7 +89,7 @@ if 'chat_id_status' not in st.session_state:
 
     else:
         print("C works")
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
 
 else:
     if st.session_state['chat_id_status'] == True:
@@ -112,7 +112,7 @@ else:
 
                 grouped_chats.setdefault(created_at, []).append(chat)
 
-            with st.sidebar.expander("Project Buddy", expanded=False):
+            with st.sidebar.expander("Chat History", expanded=False):
                 for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                     st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     for chat in chats_for_date:
@@ -123,13 +123,16 @@ else:
 
         else:
             print("H works")
-            st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
+            st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
 
   
 
 
 
-            
+chat_button = st.sidebar.button("Start New Chat") 
+if chat_button:
+    st.session_state['chat_activated'] = False
+    st.switch_page('pages/Project_Buddy.py')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
@@ -144,9 +147,9 @@ def get_response(jim_line):
     output =  "dummy"
     return output 
                                                                                                                                                                                                                
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["General", "Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6", "Module 7", "Module 8"])
-with tab1:
-    pass
+tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["Module 1", "Module 2", "Module 3", "Module 4", "Module 5", "Module 6", "Module 7", "Module 8"])
+# with tab1:
+#     pass
     # col01, col02 = st.columns([1, 2])
     # with col01:
     #     st.video("pages/game.mp4")

@@ -62,7 +62,8 @@ if st.session_state['page'] == 'login':
             handle_submit(is_new_user,username,password)
             # Explicitly set is_logged_in to True after the form is submitted
             
-
+if "chat_nullifier" not in st.session_state:
+    st.session_state['chat_nullifier'] = False
 # Default to 'terms' page if not set in session state
 if st.session_state.get('page', 'terms') == 'terms':
     
