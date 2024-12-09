@@ -162,7 +162,7 @@ module_names = [key for record in modules for key in record.keys() if isinstance
 
 # Create tabs based on the number of modules
 tabs = st.tabs(module_names)
-
+selected_task = None
 # Display each module in the loop
 for i, tab_name in enumerate(module_names):
     tab = tabs[i]
@@ -180,10 +180,16 @@ for i, tab_name in enumerate(module_names):
             
             # Create columns based on the number of tasks
             cols = st.columns(tasks_count)
+            
             for idx, task in enumerate(tasks):
                 col = cols[idx]
                 with col:
-                    st.button(task['title'], key=task['key'], use_container_width=True)
+                    
+                    if st.button(task['title'], key=task['key'], use_container_width=True):
+                        selected_task = task  # Update the selected task
+            if selected_task:
+                st.markdown(f"**Description**  \n {selected_task['description']}", unsafe_allow_html=True)
+
             with st.expander("Submit your exercise here"):
                 with st.form(f"my_form{i}"):
                     jim_email = st.text_input("Email to receive feedback", "12345678@std.usn")
