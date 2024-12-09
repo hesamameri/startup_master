@@ -6,3 +6,4 @@ venv
 *.txt
 check_database_connect.py
 responses.json
+raw_data.json
