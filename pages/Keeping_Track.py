@@ -224,11 +224,12 @@ with st.form("this"):
             "Role": role,
             "Define": define,
         }
-
+        print(st.session_state)
         # Check if user_id exists in the collection
         existing_record = destination_collection.find_one({"user_id": user_id})
 
         if existing_record:
+            print("record exists")
             # Update the existing record
             destination_collection.update_one(
                 {"user_id": user_id},  # Match by user_id
@@ -237,11 +238,13 @@ with st.form("this"):
             st.success("Form updated successfully!")
         else:
             # Insert a new record if user_id doesn't exist
+            print("record doesnt exist")
             result = destination_collection.insert_one(user_inputs)
             st.success(f"Form submitted successfully! Document ID: {result.inserted_id}")
 
         # Clear session state items
         if "retrieved_data" in st.session_state:
+            print("cache deleted")
             del st.session_state["retrieved_data"]
 
 
