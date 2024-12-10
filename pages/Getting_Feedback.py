@@ -149,6 +149,12 @@ def get_response(jim_line):
 database_name = "users"
 collection_name = "Exercise_def"
 
+def add_exercise_item(item,collection_name='exercises'):
+    client = pymongo.MongoClient(connection_string)
+    db = client[database_name]
+    collection = db[collection_name]
+    collection.insert(item)
+    print("insertion successful")
 
 
 connection_string = st.secrets['mongo']['uri']
@@ -187,15 +193,24 @@ for i, tab_name in enumerate(module_names):
                     
                     if st.button(task['title'], key=task['key'], use_container_width=True):
                         selected_task = task  # Update the selected task
+                        st.session_state['selected_task'] = selected_task
             if selected_task:
                 st.markdown(f"**Description**  \n {selected_task['description']}", unsafe_allow_html=True)
 
             with st.expander("Submit your exercise here"):
                 with st.form(f"my_form{i}"):
-                    jim_email = st.text_input("Email to receive feedback", "12345678@std.usn")
-                    jim_line = st.text_area("Write your exercise here", "", height=200)
+                    email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
+                    response = st.text_area("Write your exercise here", "", height=200)
                     submitted = st.form_submit_button("Submit")
-
+                if submitted:
+                    item = st.session_state['selected_task']
+                    item['user_id'] = st.session_state['user_id']
+                    item['class'] = "Bø"
+                    item['email_feedback'] = email_feedback
+                    item['response'] = response
+                    item['feedback'] = ""
+                    item['feedback_sent'] = False
+                    add_exercise_item(item)
 
 
 

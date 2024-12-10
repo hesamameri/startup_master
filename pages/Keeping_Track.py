@@ -5,7 +5,7 @@ import extra_streamlit_components as stx
 import time
 from streamlit_extras.switch_page_button import switch_page
 from datetime import date, datetime, timedelta
-
+from pymongo import MongoClient
 from auth import log_out
 
 
@@ -118,10 +118,6 @@ else:
             print("H works")
             st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
 
-  
-
-
-
 chat_button = st.sidebar.button("Start New Chat") 
 if chat_button:
     st.session_state['chat_activated'] = False
@@ -134,66 +130,138 @@ st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked
 
-st.header("Reflecting on your learning progress")
-st.write("To keep track on your learning progress, we need to collect some information from you.")
-st.write("Please complete the form seriously as it might impact the feedback you will receive.")
-st.button("I understand! Let's start")
-st.button("Load the latest form to update new progress?")
-with st.form("my_form"):
-    st.write("To understand your progress, please fill in the following information:")
-    
-    # Milestone 1 - Project planning
-    st.caption("Milestone 1 - Project planning")
-    
-    # Section 1
-    st.write("1. Team formation")
-    team_stage = st.selectbox("Stage", options=["No team found", "Found a team", "Agree on way of working", "Storming time", "Performing time"])
-    
-    # Section 2
-    st.write("2. Project specification")
-    spec_read = st.checkbox("Read project specification")
-    chat_customer = st.checkbox("Chat with the customer")
-    understand_need = st.checkbox("Understand what need to do")
-    understand_not_do = st.checkbox("Understand what should not do")
-    describe_func_req = st.checkbox("Describe the functional requirements")
-    describe_non_func_req = st.checkbox("Describe the non-functional requirements")
-    
-    # Section 3
-    st.write("3. Tool and Configuration")
-    setup_repo = st.checkbox("Set up a project repository - Github, Dropbox, etc")
-    setup_comm_tool = st.checkbox("Set up communication tool - Team, Messenger, Slack, etc")
-    setup_pm_board = st.checkbox("Set up a project management board - Trello, Monday, etc")
-    setup_dev_env = st.checkbox("Set up a software development environment - Visual Studio, Sublime, etc")
-    setup_doc_editor = st.checkbox("Set up a document editor tool - Word 365, Google Doc, etc")
-    learn_learnix = st.checkbox("Learn to use LearnIX")
-    
-    # Section 4
-    st.write("4. Scope planning")
-    scope_stage = st.selectbox("Stage", options=["Nothing done", "Read about WBS", "Understand WBS", "Create a WBS", "Get the WBS validated"])
-    define_success = st.checkbox("Define project success criteria")
-    validate_scope = st.checkbox("Validate scope")
-    
-    # Section 5
-    st.write("5. Time planning")
-    time_stage = st.selectbox("Stage", options=["Nothing done", "Read about Gantt Chart", "Understand Gantt Chart", "Create a Gantt Chart", "Get the Gantt Chart validated"])
-    
-    # Add remaining sections here...
-    
-    # Submit button
-    submitted = st.form_submit_button("Save form")
 
-if submitted:
+
+######################################### MAIN PAGE
+
+# set token for launching the retrieval button
+# set token for loading the latest progress form
+# make the retrieval button activate a function that does the retrieval or creates a form record for the user in 
+# in the database. database name -> project_def ( has each form itemgroup  / checkbox or multi selectbox)
+# i want to either create :
+#{"title": "sth","order_num": 1 "items": [{"name":"sth","type" : "selectbox",  value: ['']},{"name":"sth", "type":"checkbox","value": false},..] }  
+# or retrieve the items of the form accordingly
+
+
+# UI and Database connection setup
+# Database setup (example only; replace with your actual credentials and collection names)
+# Database setup
+st.header("Reflecting on your learning progress")
+st.write("To keep track of your learning progress, we need to collect some information from you.")
+st.write("Please complete the form seriously as it might impact the feedback you will receive.")
+
+connection_string = st.secrets['mongo']['uri']
+client = pymongo.MongoClient(connection_string)
+db = client['users']
+destination_collection = db["projects"]
+user_id = st.session_state['user_id']
+
+# Initialize session state for retrieved data
+if "retrieved_data" not in st.session_state:
+    st.session_state["retrieved_data"] = {}
+
+# Button to retrieve form data
+if st.button("Retrieve Latest Form Data"):
+    # Fetch the latest document for the specific user
+    user_data = destination_collection.find_one({"user_id": st.session_state['user_id']})
+    if user_data:
+        # Update session state with retrieved data
+        st.session_state["retrieved_data"] = user_data
+        st.success("Form data retrieved successfully!")
+    else:
+        st.warning("No data found for the user.")
+
+# Display the form
+with st.form("this"):
+    # Populate form fields with retrieved data or default values
+    st.write("Team Formation")
+    team_stage = st.selectbox(
+        "Team Stage",
+        options=['Found a team', 'Understand'],
+        index=['Found a team', 'Understand'].index(
+            st.session_state["retrieved_data"].get("TeamStage", "Found a team")
+        )
+    )
+    st.write("Project Planning")
+    project_spec = st.checkbox("Project Specification", value=st.session_state["retrieved_data"].get("ProjectSpec", False))
+    project_req = st.checkbox("Project Requirements", value=st.session_state["retrieved_data"].get("ProjectReq", False))
+    communication = st.checkbox("Communication", value=st.session_state["retrieved_data"].get("Communication", False))
+    project_management = st.checkbox("Project Management", value=st.session_state["retrieved_data"].get("ProjectManagement", False))
+    ide_setup = st.checkbox("IDE Setup", value=st.session_state["retrieved_data"].get("IDESetup", False))
+    collaboration = st.checkbox("Collaboration", value=st.session_state["retrieved_data"].get("Collaboration", False))
+    learning_experience = st.checkbox("Learning Experience", value=st.session_state["retrieved_data"].get("LearningExperience", False))
+    wbs = st.selectbox(
+        "WBS",
+        options=['CreateAV', 'ValidateAV'],
+        index=['CreateAV', 'ValidateAV'].index(
+            st.session_state["retrieved_data"].get("WBS", "CreateAV")
+        )
+    )
+    st.write("Risk Assessment")
+    risk_score = st.checkbox("Risk Score", value=st.session_state["retrieved_data"].get("RiskScore", False))
+    risk_count = st.checkbox("Risk Count", value=st.session_state["retrieved_data"].get("RiskCount", False))
+    role = st.checkbox("Role", value=st.session_state["retrieved_data"].get("Role", False))
+    define = st.checkbox("Define", value=st.session_state["retrieved_data"].get("Define", False))
+
+    submitted_form = st.form_submit_button("Submit Form")
+    # Submit button to insert or update values in the database
+    # Submit button to insert or update values in the database
+    if submitted_form:
+        # Collect the values into a dictionary for database insertion or update
+        user_inputs = {
+            "user_id": user_id,  # Add user identifier
+            "TeamStage": team_stage,
+            "ProjectSpec": project_spec,
+            "ProjectReq": project_req,
+            "Communication": communication,
+            "ProjectManagement": project_management,
+            "IDESetup": ide_setup,
+            "Collaboration": collaboration,
+            "LearningExperience": learning_experience,
+            "WBS": wbs,
+            "RiskScore": risk_score,
+            "RiskCount": risk_count,
+            "Role": role,
+            "Define": define,
+        }
+
+        # Check if user_id exists in the collection
+        existing_record = destination_collection.find_one({"user_id": user_id})
+
+        if existing_record:
+            # Update the existing record
+            destination_collection.update_one(
+                {"user_id": user_id},  # Match by user_id
+                {"$set": user_inputs}  # Update fields with new values
+            )
+            st.success("Form updated successfully!")
+        else:
+            # Insert a new record if user_id doesn't exist
+            result = destination_collection.insert_one(user_inputs)
+            st.success(f"Form submitted successfully! Document ID: {result.inserted_id}")
+
+        # Clear session state items
+        if "retrieved_data" in st.session_state:
+            del st.session_state["retrieved_data"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
-    st.write("Form Submitted!")
-    # st.write(f"Team Stage: {team_stage}")
-    # st.write(f"Read Project Specification: {spec_read}")
-    # st.write(f"Chat with Customer: {chat_customer}")
-    # st.write(f"Understand What Need to Do: {understand_need}")
-    # st.write(f"Understand What Should Not Do: {understand_not_do}")
-    # st.write(f"Describe Functional Requirements: {describe_func_req}")
-    # st.write(f"Describe Non-Functional Requirements: {describe_non_func_req}")
-    # st.write(f"Scope Stage: {scope_stage}")
-    # st.write(f"Define Success Criteria: {define_success}")
-    # st.write(f"Validate Scope: {validate_scope}")
-    # Include more fields as needed
 
