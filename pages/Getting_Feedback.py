@@ -156,6 +156,20 @@ def add_exercise_item(item,collection_name='exercises'):
     collection.insert(item)
     print("insertion successful")
 
+def get_feedback_llm(user_response):
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant providing feedback on exercises."},
+                {"role": "user", "content": user_response}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error generating feedback: {e}"
+
+    
 
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
@@ -204,13 +218,14 @@ for i, tab_name in enumerate(module_names):
                     submitted = st.form_submit_button("Submit")
                 if submitted:
                     item = st.session_state['selected_task']
-                    item['user_id'] = st.session_state['user_id']
+                    item['user_id'] = st.session_state['username']
                     item['class'] = "Bø"
                     item['email_feedback'] = email_feedback
                     item['response'] = response
-                    item['feedback'] = ""
+                    item['feedback'] = get_feedback_llm(response)  # Generate feedback
                     item['feedback_sent'] = False
-                    add_exercise_item(item)
+                    
+                    add_exercise_item(item)  # Save the item
 
 
 

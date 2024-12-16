@@ -132,6 +132,9 @@ st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
 
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked
+
+
+
 col1, col2 = st.columns([1, 3])
 with col1:
         st.header("Reidar Hellegurd")
