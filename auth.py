@@ -30,4 +30,6 @@ def log_out():
         del st.session_state["chat_id_status"]
     if 'chat_activated' in st.session_state:
         del st.session_state["chat_activated"]
+    if 'chat_history' in st.session_state:
+        del st.session_state['chat_history']
     st.switch_page('Chatbot.py')
