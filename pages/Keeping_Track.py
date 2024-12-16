@@ -146,15 +146,17 @@ if st.sidebar.button("Log Out"):
 # UI and Database connection setup
 # Database setup (example only; replace with your actual credentials and collection names)
 # Database setup
+
 st.header("Reflecting on your learning progress")
 st.write("To keep track of your learning progress, we need to collect some information from you.")
 st.write("Please complete the form seriously as it might impact the feedback you will receive.")
 
+# MongoDB connection setup
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
 db = client['users']
 destination_collection = db["projects"]
-user_id = st.session_state['user_id']
+username = st.session_state['username']  # Use 'username' instead of 'user_id'
 
 # Initialize session state for retrieved data
 if "retrieved_data" not in st.session_state:
@@ -163,7 +165,7 @@ if "retrieved_data" not in st.session_state:
 # Button to retrieve form data
 if st.button("Retrieve Latest Form Data"):
     # Fetch the latest document for the specific user
-    user_data = destination_collection.find_one({"user_id": st.session_state['user_id']})
+    user_data = destination_collection.find_one({"username": username})  # Query by 'username'
     if user_data:
         # Update session state with retrieved data
         st.session_state["retrieved_data"] = user_data
@@ -205,11 +207,10 @@ with st.form("this"):
 
     submitted_form = st.form_submit_button("Submit Form")
     # Submit button to insert or update values in the database
-    # Submit button to insert or update values in the database
     if submitted_form:
         # Collect the values into a dictionary for database insertion or update
         user_inputs = {
-            "user_id": user_id,  # Add user identifier
+            "username": username,  # Add username identifier
             "TeamStage": team_stage,
             "ProjectSpec": project_spec,
             "ProjectReq": project_req,
@@ -223,29 +224,136 @@ with st.form("this"):
             "RiskCount": risk_count,
             "Role": role,
             "Define": define,
+            "selected_class": "Bø"
         }
-        print(st.session_state)
-        # Check if user_id exists in the collection
-        existing_record = destination_collection.find_one({"user_id": user_id})
+
+        # Check if username exists in the collection
+        existing_record = destination_collection.find_one({"username": username})
 
         if existing_record:
-            print("record exists")
             # Update the existing record
             destination_collection.update_one(
-                {"user_id": user_id},  # Match by user_id
+                {"username": username},  # Match by username
                 {"$set": user_inputs}  # Update fields with new values
             )
             st.success("Form updated successfully!")
         else:
-            # Insert a new record if user_id doesn't exist
-            print("record doesnt exist")
+            # Insert a new record if username doesn't exist
             result = destination_collection.insert_one(user_inputs)
             st.success(f"Form submitted successfully! Document ID: {result.inserted_id}")
 
         # Clear session state items
         if "retrieved_data" in st.session_state:
-            print("cache deleted")
             del st.session_state["retrieved_data"]
+
+
+
+
+
+
+
+
+###################### PREVIOUS CODE 
+# st.header("Reflecting on your learning progress")
+# st.write("To keep track of your learning progress, we need to collect some information from you.")
+# st.write("Please complete the form seriously as it might impact the feedback you will receive.")
+
+# connection_string = st.secrets['mongo']['uri']
+# client = pymongo.MongoClient(connection_string)
+# db = client['users']
+# destination_collection = db["projects"]
+# user_id = st.session_state['user_id']
+
+# # Initialize session state for retrieved data
+# if "retrieved_data" not in st.session_state:
+#     st.session_state["retrieved_data"] = {}
+
+# # Button to retrieve form data
+# if st.button("Retrieve Latest Form Data"):
+#     # Fetch the latest document for the specific user
+#     user_data = destination_collection.find_one({"user_id": st.session_state['user_id']})
+#     if user_data:
+#         # Update session state with retrieved data
+#         st.session_state["retrieved_data"] = user_data
+#         st.success("Form data retrieved successfully!")
+#     else:
+#         st.warning("No data found for the user.")
+
+# # Display the form
+# with st.form("this"):
+#     # Populate form fields with retrieved data or default values
+#     st.write("Team Formation")
+#     team_stage = st.selectbox(
+#         "Team Stage",
+#         options=['Found a team', 'Understand'],
+#         index=['Found a team', 'Understand'].index(
+#             st.session_state["retrieved_data"].get("TeamStage", "Found a team")
+#         )
+#     )
+#     st.write("Project Planning")
+#     project_spec = st.checkbox("Project Specification", value=st.session_state["retrieved_data"].get("ProjectSpec", False))
+#     project_req = st.checkbox("Project Requirements", value=st.session_state["retrieved_data"].get("ProjectReq", False))
+#     communication = st.checkbox("Communication", value=st.session_state["retrieved_data"].get("Communication", False))
+#     project_management = st.checkbox("Project Management", value=st.session_state["retrieved_data"].get("ProjectManagement", False))
+#     ide_setup = st.checkbox("IDE Setup", value=st.session_state["retrieved_data"].get("IDESetup", False))
+#     collaboration = st.checkbox("Collaboration", value=st.session_state["retrieved_data"].get("Collaboration", False))
+#     learning_experience = st.checkbox("Learning Experience", value=st.session_state["retrieved_data"].get("LearningExperience", False))
+#     wbs = st.selectbox(
+#         "WBS",
+#         options=['CreateAV', 'ValidateAV'],
+#         index=['CreateAV', 'ValidateAV'].index(
+#             st.session_state["retrieved_data"].get("WBS", "CreateAV")
+#         )
+#     )
+#     st.write("Risk Assessment")
+#     risk_score = st.checkbox("Risk Score", value=st.session_state["retrieved_data"].get("RiskScore", False))
+#     risk_count = st.checkbox("Risk Count", value=st.session_state["retrieved_data"].get("RiskCount", False))
+#     role = st.checkbox("Role", value=st.session_state["retrieved_data"].get("Role", False))
+#     define = st.checkbox("Define", value=st.session_state["retrieved_data"].get("Define", False))
+
+#     submitted_form = st.form_submit_button("Submit Form")
+#     # Submit button to insert or update values in the database
+#     # Submit button to insert or update values in the database
+#     if submitted_form:
+#         # Collect the values into a dictionary for database insertion or update
+#         user_inputs = {
+#             "user_id": user_id,  # Add user identifier
+#             "TeamStage": team_stage,
+#             "ProjectSpec": project_spec,
+#             "ProjectReq": project_req,
+#             "Communication": communication,
+#             "ProjectManagement": project_management,
+#             "IDESetup": ide_setup,
+#             "Collaboration": collaboration,
+#             "LearningExperience": learning_experience,
+#             "WBS": wbs,
+#             "RiskScore": risk_score,
+#             "RiskCount": risk_count,
+#             "Role": role,
+#             "Define": define,
+#         }
+#         print(st.session_state)
+#         # Check if user_id exists in the collection
+#         existing_record = destination_collection.find_one({"user_id": user_id})
+
+#         if existing_record:
+#             print("record exists")
+#             # Update the existing record
+#             destination_collection.update_one(
+#                 {"user_id": user_id},  # Match by user_id
+#                 {"$set": user_inputs}  # Update fields with new values
+#             )
+#             st.success("Form updated successfully!")
+#         else:
+#             # Insert a new record if user_id doesn't exist
+#             print("record doesnt exist")
+#             result = destination_collection.insert_one(user_inputs)
+#             st.success(f"Form submitted successfully! Document ID: {result.inserted_id}")
+
+#         # Clear session state items
+#         if "retrieved_data" in st.session_state:
+#             print("cache deleted")
+#             del st.session_state["retrieved_data"]
 
 
 
