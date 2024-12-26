@@ -7,8 +7,7 @@ from streamlit_extras.switch_page_button import switch_page
 st.set_page_config(layout="wide")
 from auth import log_out 
 import openai
-# st.sidebar.page_link('pages/Project_Buddy.py', label='Project Buddy')
-# DB connection
+
 openai.api_key = st.secrets["api"]["key"]
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)

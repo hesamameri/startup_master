@@ -13,11 +13,10 @@ from pymongo.server_api import ServerApi
 
 from auth import log_out
 st.set_page_config(layout = "wide", page_title="StartupGPT")
-#import app_components as components 
-#import chatbot_utils as cu
 
-# client = OpenAI(api_key=st.secrets["OPENAI_KEY"])
-# DB connection
+
+
+
 openai.api_key = st.secrets["api"]["key"]
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
