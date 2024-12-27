@@ -261,20 +261,25 @@ else:
                     st.success("Your question and feedback have been added.")
 
         # Display "End Chat" button only if chat history exists in the database
+        
+
         if st.button("End Chat"):
             if chat_record:
-                # Set the chat_ended field to True in the database
+                # Set the chat_ended field to True and add a timestamp when the chat ends
                 collection.update_one(
                     {"_id": chat_record["_id"]},
-                    {"$set": {"chat_ended": True}}
+                    {"$set": {
+                        "chat_ended": True,
+                        "timestamp": datetime.now()
+                    }}
                 )
                 st.success("Chat ended successfully.")
                 # Hide the page content after ending the chat
                 st.stop()
 
-    else:
-        # Message for when the active meeting type is not "customermeeting"
-        st.warning("No customer meeting is currently active.")
+            else:
+                # Message for when the active meeting type is not "customermeeting"
+                st.warning("No customer meeting is currently active.")
 
 
 
