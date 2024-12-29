@@ -68,44 +68,31 @@ if "chat_nullifier" not in st.session_state:
 if st.session_state.get('page', 'terms') == 'terms':
     
     # Show the information after the user logs in
-    st.subheader("Information about the project")
-    st.write("ProjectGPT is a prototype of a virtual assistant built on GPT technology. ProjectGPT will support students to learn from the courses")
-
-    st.subheader("Who is responsible for the research project?")
-    st.write("Department of Economic and Informatikk, Business School, University of South Eastern Norway")
-    
-    st.subheader("Voluntary Participation")
-    st.write("Your participation in this study is entirely voluntary. You have the right to withdraw at any time without any negative consequences. If you wish to withdraw, all the data obtained concerning you for this study will be deleted immediately. You will not be able to recover your data after withdrawing. To withdraw from the study, click the button below:")
-
+    st.subheader("Informasjon om prosjektet")
+    st.write("InnSpill AI er en prototype av en virtuell assistent basert på GPT-teknologi. ProjectGPT skal støtte studenter i læringen av kursene. Ansvarlig person er Prof. Anh Nguyen-Duc, institutt for økonomi og informatikk, Handelshøyskolen, Universitetet i Sørøst-Norge.")
     # Confidentiality and Data Protection
-    st.subheader("Confidentiality and Data Protection")
+    st.subheader("Konfidensialitet og databeskyttelse")
     lst = [
-        "We will only use your information for the purposes we have stated in this document.", 
-        "All personal data collected during this study will be treated confidentially and in accordance with privacy regulations.", 
-        "We will implement appropriate technical and organizational measures to ensure the security of your data.", 
-        "Data will be anonymized.", 
-        "The data will be stored securely in a secure database and will only be accessible to the research team."
+        "Vi vil kun bruke din informasjon til de formålene som er oppgitt i dette dokumentet", 
+        "Alle personopplysninger som samles inn under denne studien, vil bli behandlet konfidensielt og i samsvar med personvernreglene.", 
+        "Vi vil iverksette nødvendige tekniske og organisatoriske tiltak for å sikre dine data.", 
+        "Dataene lagres sikkert i en sikker database og vil kun være tilgjengelig for forskningsteamet."
     ]
     s = '\n'.join([f"- {item}" for item in lst])
     st.markdown(s)
-
-    st.subheader("What gives us the right to handle data about you?")
-    st.write("We process information about you based on your consent.")
-    st.write("On behalf of USN, Sikt – The Knowledge Sector's Service Provider (Kunnskapssektorens tjenesteleverandør in Norwegian) has assessed that the processing of personal data in this project is in accordance with the data protection regulations.")
-
     # Approval button for continuing the study
-    if st.button("Approve and Continue the Study"):
+    if st.button("Godkjenn og Fortsett"):
         study_approval()
         # Use the exact file name without the .py extension
         st.session_state['notification'] = False
         st.switch_page("pages/Project_Buddy.py")
 
-    if st.button("Click to withdraw from the Study"):
+    if st.button("Klikk for å trekke deg"):
         # Handle the withdrawal process
         handle_withdrawal()
-        st.write("You have successfully withdrawn from the study. Your data will be deleted.")
+        st.write("Du har trukket deg fra studien. Dine data vil bli slettet.")
 
 else:
     # Show a message or form to prompt the user to log in
-    st.info("Please log in to view the project information.")
+    st.info("Vennligst logg inn for å se prosjektinformasjonen.")
     
