@@ -228,8 +228,8 @@ else:
         with chat_placeholder.container():
             st.markdown("### Dine samtaler")
             for entry in st.session_state["chat_history"]:
-                st.markdown(f"**You:** {entry['response']}")
-                st.markdown(f"**Assistant:** {entry['feedback']}")
+                st.markdown(f"**Du:** {entry['response']}")
+                st.markdown(f"**Reidar:** {entry['feedback']}")
                 st.markdown("---")
 
         # Form for new input with styling
