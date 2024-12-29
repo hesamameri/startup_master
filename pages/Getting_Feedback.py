@@ -12,7 +12,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
 from auth import log_out
-st.set_page_config(layout = "wide", page_title="StartupGPT")
+st.set_page_config(layout = "wide", page_title="InnSpillAI")
 
 
 
