@@ -140,9 +140,7 @@ if st.sidebar.button("Log Out"):
 ######################################### MAIN PAGE
 
 st.header("Følger fremgangen din her!")
-st.write("To keep track of your learning progress, we need to collect some information from you.")
-st.write("Please complete the form seriously as it might impact the feedback you will receive.")
-
+st.write("Du må registrere fremgangen din ved å fylle ut skjemaet nedenfor når foreleseren får beskjed om det. Du må fylle den nøye og ærlig for å få den mest passende tilbakemeldingen for prosjektet ditt. Hent først det siste skjemaet (hvis noen), og begynn å fylle ut eller redigere skjemaet. Når du er ferdig klikker du på send for å sende skjemaet til foreleseren.")
 
 
 # MongoDB connection setup
@@ -165,9 +163,9 @@ if st.button("Hent det siste skjemaet"):
         # Sort the forms by timestamp to get the latest one
         latest_form = max(user_data["forms"], key=lambda x: x["timestamp"])
         st.session_state["retrieved_data"] = latest_form
-        st.success("Latest form data retrieved successfully!")
+        st.success("Det siste fremdriftsskjemaet er hentet!")
     else:
-        st.warning("No data found for the user.")
+        st.warning("Det er ikke registrert skjema fra før. Du kan starte din første fremdriftsundersøkelse nå!")
 
 # Display the form
 with st.form("this"):
