@@ -153,13 +153,24 @@ def get_active_meeting_type():
                 return meeting.get("Meet_type")
     return None
 
+def get_course_description(type):
+    pathname = f"PRO1000data/{type}.txt"    
+    try:
+        with open(pathname, "r") as f:
+            content = f.read()
+        return content
+    except FileNotFoundError:
+        return f"Error: File '{pathname}' not found."
+    except Exception as e:
+        return f"Error: {e}"
+        
 # Function to generate feedback using ChatGPT
 def generate_feedback(user_response):
     try:
         completion = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant providing feedback."},
+                {"role": "system", "content": get_course_description("project")},
                 {"role": "user", "content": user_response},
             ]
         )
@@ -194,9 +205,12 @@ else:
 
         # Add markdown content with enhanced readability
         st.markdown("""
-            The meetings with customers are scheduled. Today you will talk to your Customer Reidar Hellegurd.
-            The objective of the meeting is to clarify the customer's need. Read the project description and prepare your questions.
-            An example of questions can be - What is the preferred color scheme for the home page? How the cover photo should look like?
+            Møtene med kunder er planlagt. I dag skal du snakke med din kunde Reidar Hellegurd.
+            Målet med møtet er å avklare kundens behov. Han kan svare deg på spørsmål om hans behov, krav samt tekniske krav eller begrensninger.
+            Les prosjektbeskrivelsen og forbered spørsmålene dine før du starter denne samtalen.
+            Et eksempel på spørsmål kan være - Hva er det foretrukne fargevalget for hjemmesiden? Hvordan skal forsidebildet se ut?nd prepare your questions.
+            Du bør ikke bytte til andre faner eller programmer under dette kundemøtet for å unngå å tape samtalen. Samtalen bør vare mindre enn 15 minutter. 
+            Når du er ferdig, klikker du på Avslutt samtalen for å lagre.
         """, unsafe_allow_html=False)
 
         # Initialize chat state if no chat exists
@@ -212,7 +226,7 @@ else:
 
         # Display chat history
         with chat_placeholder.container():
-            st.markdown("### Previous Conversations")
+            st.markdown("### Dine samtaler")
             for entry in st.session_state["chat_history"]:
                 st.markdown(f"**You:** {entry['response']}")
                 st.markdown(f"**Assistant:** {entry['feedback']}")
@@ -220,7 +234,7 @@ else:
 
         # Form for new input with styling
         with st.form("chat_form"):
-            user_response = st.text_area("Write your question here", "", height=70, key="question_input", placeholder="Type your question here...")
+            user_response = st.text_area("Skriv spøsmåler her", "", height=70, key="question_input", placeholder="Kan du fortelle meg om de viktigste kravene i dette prosjektet...")
             submitted = st.form_submit_button("Submit")
 
             # Handle form submission
@@ -252,7 +266,7 @@ else:
                     st.session_state["chat_history"].append(new_entry)
                     chat_placeholder.empty()
                     with chat_placeholder.container():
-                        st.markdown("### Previous Conversations")
+                        st.markdown("### Dine Samtaler")
                         for entry in st.session_state["chat_history"]:
                             st.markdown(f"**You:** {entry['response']}")
                             st.markdown(f"**Assistant:** {entry['feedback']}")
@@ -263,7 +277,7 @@ else:
         # Display "End Chat" button only if chat history exists in the database
         
 
-        if st.button("End Chat"):
+        if st.button("Avslutt Samtalen"):
             if chat_record:
                 # Set the chat_ended field to True and add a timestamp when the chat ends
                 collection.update_one(
