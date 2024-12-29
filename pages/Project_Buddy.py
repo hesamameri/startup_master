@@ -119,7 +119,8 @@ else:
 
             with st.sidebar.expander("Dine samtaler", expanded=False):
                 for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                    #st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                    st.markdown(f"<p style='font-size:12px;'>{date.strftime('%A, %B %d, %Y')}</p>", unsafe_allow_html=True)
                     for chat in chats_for_date:
                         if st.button(chat['title']):
                             st.session_state['chat_id'] = chat['chat_id']
@@ -250,7 +251,7 @@ if st.session_state['chat_activated'] == True: # this checks whether the id_stat
         st.write("waiting for the chat ... ")
     else:
 
-        print("the chat_history owrked")
+        print("the chat_history worked!")
         
         for message in chat_history['messages']:
             if message['role'] == 'user':
@@ -268,4 +269,4 @@ if st.session_state['chat_activated'] == True: # this checks whether the id_stat
                 </div>
                 """, unsafe_allow_html=True)
 else:
-    print("the chat_history didnt owrk")
+    print("the chat_history didnt work!")
