@@ -48,7 +48,7 @@ elif st.session_state['notification'] == False:
     st.session_state['notification'] = True
    
 username = st.session_state["username"]
-
+'''
 if "chat_activated" not in st.session_state:
     st.session_state['chat_activated'] = False
 
@@ -125,6 +125,7 @@ chat_button = st.sidebar.button("Start New Chat")
 if chat_button:
     st.session_state['chat_activated'] = False
     st.switch_page('pages/Project_Buddy.py')            
+'''
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
@@ -137,7 +138,7 @@ if st.sidebar.button("Log Out"):
 
 ######################################### MAIN PAGE
 
-st.header("Reflecting on your learning progress")
+st.header("Følger fremgangen din her!")
 st.write("To keep track of your learning progress, we need to collect some information from you.")
 st.write("Please complete the form seriously as it might impact the feedback you will receive.")
 
@@ -155,7 +156,7 @@ if "retrieved_data" not in st.session_state:
     st.session_state["retrieved_data"] = {}
 
 # Button to retrieve the latest form data
-if st.button("Retrieve Latest Form Data"):
+if st.button("Hent det siste skjemaet"):
     # Fetch the user data
     user_data = destination_collection.find_one({"username": username})  # Query by 'username'
     
@@ -199,7 +200,7 @@ with st.form("this"):
     role = st.checkbox("Role", value=st.session_state["retrieved_data"].get("Role", False))
     define = st.checkbox("Define", value=st.session_state["retrieved_data"].get("Define", False))
 
-    submitted_form = st.form_submit_button("Submit Form")
+    submitted_form = st.form_submit_button("Send Inn")
     
     # Submit button to insert or update values in the database
     if submitted_form:
