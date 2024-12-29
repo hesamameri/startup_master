@@ -12,7 +12,17 @@ import pymongo
 st.set_page_config(layout = "wide", page_title="InnSpillAI")
 from auth import log_out
 
-
+def get_course_description(type):
+    pathname = f"PRO1000data/{type}.txt"    
+    try:
+        with open(pathname, "r") as f:
+            content = f.read()
+        return content
+    except FileNotFoundError:
+        return f"Error: File '{pathname}' not found."
+    except Exception as e:
+        return f"Error: {e}"
+        
 # DB connection
 openai.api_key = st.secrets["api"]["key"]
 connection_string = st.secrets['mongo']['uri']
@@ -167,7 +177,7 @@ if submitted and jim_line:
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": get_course_description("description")},
                 {"role": "user", "content": jim_line}
             ]
         )
@@ -202,7 +212,7 @@ if submitted and jim_line:
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": get_course_description("description")},
                 {"role": "user", "content": jim_line}
             ]
         )
@@ -246,14 +256,14 @@ if st.session_state['chat_activated'] == True: # this checks whether the id_stat
             if message['role'] == 'user':
                     st.markdown(f"""
                     <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9;">
-                        <h4 style="color: #4CAF50; margin-bottom: 5px;">💬 User Input:</h4>
+                        <h4 style="color: #4CAF50; margin-bottom: 5px;">💬 Innspillet Ditt:</h4>
                         <p style="font-size: 16px; color: #333;">{message['message']}</p>
                     </div>
                     """, unsafe_allow_html=True)
             elif message['role'] == 'bot':
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: #f1f1ff;">
-                    <h4 style="color: #2196F3; margin-bottom: 5px;">🤖 BOT Response:</h4>
+                    <h4 style="color: #2196F3; margin-bottom: 5px;">🤖 InnSpill Compis: </h4>
                     <p style="font-size: 16px; color: #555;">{message['message']}</p>
                 </div>
                 """, unsafe_allow_html=True)
