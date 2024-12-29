@@ -9,7 +9,7 @@ import pymongo
 
 
 
-st.set_page_config(layout = "wide", page_title="StartupGPT")
+st.set_page_config(layout = "wide", page_title="InnSpillAI")
 from auth import log_out
 
 
@@ -74,7 +74,7 @@ if 'chat_id_status' not in st.session_state:
 
             grouped_chats.setdefault(created_at, []).append(chat)
 
-        with st.sidebar.expander("Chat History", expanded=False):
+        with st.sidebar.expander("Dine samtaler", expanded=False):
             for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                 st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
@@ -84,7 +84,7 @@ if 'chat_id_status' not in st.session_state:
 
     else:
         print("C works")
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
+        st.sidebar.page_link('pages/Project_Buddy.py', label='Dine samtaler')
 
 else:
     if st.session_state['chat_id_status'] == True:
@@ -107,7 +107,7 @@ else:
 
                 grouped_chats.setdefault(created_at, []).append(chat)
 
-            with st.sidebar.expander("Chat History", expanded=False):
+            with st.sidebar.expander("Dine samtaler", expanded=False):
                 for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
                     st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     for chat in chats_for_date:
@@ -122,7 +122,7 @@ else:
   
 
 
-chat_button = st.sidebar.button("Start New Chat") 
+chat_button = st.sidebar.button("Ny samtale") 
 if chat_button:
     st.session_state['chat_activated'] = False
     st.switch_page('pages/Project_Buddy.py')
@@ -141,14 +141,14 @@ if st.sidebar.button("Log Out"):
 
 # Interactive Tutor Tab
 
-st.title("🏢 Interactive Tutor")
+st.title("🏢 InnSpill Compis")
 st.markdown("""
-    Ask for explanation and examples by inputting a prompt.
+    Her kan dere be om informasjon om kurset, forelesninger, øvinger, gruppearbeid og prosjekter
 """, unsafe_allow_html=True)
 
 with st.form("my_form"):
-    jim_line = st.text_area("Write your command here:", "", height=10, key='option')
-    submitted = st.form_submit_button("Submit")
+    jim_line = st.text_area("Skriv spørsmålene dine her. Tenk grundig gjennom hva du vil spørre om:", "", height=10, key='option')
+    submitted = st.form_submit_button("Send inn")
 
 if submitted and jim_line:  
 
