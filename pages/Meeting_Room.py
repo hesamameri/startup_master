@@ -44,7 +44,7 @@ elif st.session_state['notification'] == False:
     st.session_state['notification'] = True
    
 username = st.session_state["username"]
-
+'''
 if "chat_activated" not in st.session_state:
     st.session_state['chat_activated'] = False
 
@@ -125,6 +125,8 @@ chat_button = st.sidebar.button("Start New Chat")
 if chat_button:
     st.session_state['chat_activated'] = False
     st.switch_page('pages/Project_Buddy.py')     
+'''
+st.sidebar.page_link('pages/Project_Buddy.py', label='InnSpill Compis')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
