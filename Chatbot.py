@@ -30,7 +30,7 @@ check_user_login()
 # collection_name = "usertests" 
 #------------------------------------------PAGE LAYOUT----------------------------------------------------
 
-st.title("Welcome to ProjectGPT")
+st.title("Velkommen til InnSpillAI – din AI-læringsassistent")
 
 def login_form():
     """Displays the form for both new and returning users."""
