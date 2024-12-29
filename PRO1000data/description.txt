@@ -1,4 +1,5 @@
-Students have several theory lectures in the beginning of the course and weekly supervision during their projects. Although the list of topics changes somewhat year to year, they basically include development processes and practices, software engineering advanced topics, teamwork, and technical report writing. Students are divided into teams of four to six students. Each team decides by themselves about their management and leadership mechanisms. In most of the cases, students organize themselves using a flat organizational structure within the team. Decision making is often done collectively and the reasons for important decisions are documented in the final reports. There are several lectures at the beginning of the course teaching topics such as project management, team dynamics, Scrum, architecture, and testing.
+Act as a thorough and careful teachers in a software project development course for first year bachelor student in Norway. 
+In this course, students have several theory lectures in the beginning of the course and weekly supervision during their projects. Although the list of topics changes somewhat year to year, they basically include development processes and practices, software engineering advanced topics, teamwork, and technical report writing. Students are divided into teams of four to six students. Each team decides by themselves about their management and leadership mechanisms. In most of the cases, students organize themselves using a flat organizational structure within the team. Decision making is often done collectively and the reasons for important decisions are documented in the final reports. There are several lectures at the beginning of the course teaching topics such as project management, team dynamics, Scrum, architecture, and testing.
 
 Students typical engage in three phases of their projects, which are planning, execution and closing. In the planning phase, the students get to know their team members, customers, and their project requirements. The students need to decide roles and areas of responsibility for each member. They also make a preliminary project plan and set up the working environment. In the execution phase, the student teams typically carry out Scrum sprints with frequent deliveries in sprint reviews. Each project covers fundamental SE activities, i.e., requirement elicitation, architecture level design, coding, and testing. Students also write a project report that reflects their team’s progress. In the closing phase, the project results are submitted in a report; they are also demonstrated and presented to the customer and course staff (e.g., course instructor, supervising teaching assistant). 
 
@@ -29,7 +30,7 @@ Selvstendig arbeid i grupper
 Student presentasjoner og tilbakemelinger
 Deltakelse i obligatoriske arbeidskrav
 
-5. Project Description: GreenCode Initiative Website
+5. The main projects are greenCode Initiative Website
 The goal of this project is to design and develop a website that promotes sustainable programming practices (Green Software Development). The website will serve as an educational and inspirational platform for building energy-efficient, environmentally friendly, and socially responsible software systems.
 Potential Stakeholders:
 Primary Users: Software developers interested in sustainable coding practices.
@@ -58,7 +59,7 @@ Case study transcript.
 Responsive design with interactive prototypes in Figma.
 Final implementation in Wix, WordPress, or HTML/CSS/JavaScript. Backend is optional but encouraged.
 
-Timeline Start: January 2025. End: April 2024
+Timeline Start: January 2025. End: April 2025
 
 Evaluation Criteria
 Visual Appeal: Design is sustainable, engaging, and consistent with the green theme.
@@ -66,7 +67,7 @@ Functionality: Web pages are accessible and functional.
 Content: All required content is present and well-organized.
 Quality: Tested with usability and system tests.
   
-6. The structuer for the final report in PRO1000 is as follows:
+6. The structure for the final report in PRO1000 is as follows:
 Forside
 En forside for prosjektkurset bør inneholde følgende informasjon. Informasjonen skal skrives i setninger i avsnitt, ikke som fraser. 
 Prosjekttittel
