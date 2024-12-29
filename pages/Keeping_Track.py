@@ -126,6 +126,7 @@ if chat_button:
     st.session_state['chat_activated'] = False
     st.switch_page('pages/Project_Buddy.py')            
 '''
+st.sidebar.page_link('pages/Project_Buddy.py', label='InnSpill Compis')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
