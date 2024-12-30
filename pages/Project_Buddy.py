@@ -9,10 +9,20 @@ import pymongo
 
 
 
-st.set_page_config(layout = "wide", page_title="StartupGPT")
+st.set_page_config(layout = "wide", page_title="InnSpillAI")
 from auth import log_out
 
-
+def get_course_description(type):
+    pathname = f"PRO1000data/{type}.txt"    
+    try:
+        with open(pathname, "r") as f:
+            content = f.read()
+        return content
+    except FileNotFoundError:
+        return f"Error: File '{pathname}' not found."
+    except Exception as e:
+        return f"Error: {e}"
+        
 # DB connection
 openai.api_key = st.secrets["api"]["key"]
 connection_string = st.secrets['mongo']['uri']
@@ -73,10 +83,10 @@ if 'chat_id_status' not in st.session_state:
                 ).date()
 
             grouped_chats.setdefault(created_at, []).append(chat)
-
-        with st.sidebar.expander("Chat History", expanded=False):
+        with st.sidebar.expander("Dine samtaler", expanded=False):
             for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-                st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                st.markdown(f"<p style='font-size:12px;'>{date.strftime('%A, %B %d, %Y')}</p>", unsafe_allow_html=True)
+                #st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
                     if st.button(chat['title']):
                         st.session_state['chat_id'] = chat['chat_id']
@@ -84,7 +94,7 @@ if 'chat_id_status' not in st.session_state:
 
     else:
         print("C works")
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
+        st.sidebar.page_link('pages/Project_Buddy.py', label='Dine samtaler')
 
 else:
     if st.session_state['chat_id_status'] == True:
@@ -107,9 +117,10 @@ else:
 
                 grouped_chats.setdefault(created_at, []).append(chat)
 
-            with st.sidebar.expander("Chat History", expanded=False):
+            with st.sidebar.expander("Dine samtaler", expanded=False):
                 for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                    #st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+                    st.markdown(f"<p style='font-size:12px;'>{date.strftime('%A, %B %d, %Y')}</p>", unsafe_allow_html=True)
                     for chat in chats_for_date:
                         if st.button(chat['title']):
                             st.session_state['chat_id'] = chat['chat_id']
@@ -122,7 +133,7 @@ else:
   
 
 
-chat_button = st.sidebar.button("Start New Chat") 
+chat_button = st.sidebar.button("Ny samtale") 
 if chat_button:
     st.session_state['chat_activated'] = False
     st.switch_page('pages/Project_Buddy.py')
@@ -141,14 +152,14 @@ if st.sidebar.button("Log Out"):
 
 # Interactive Tutor Tab
 
-st.title("🏢 Interactive Tutor")
+st.title("🏢 InnSpill Compis")
 st.markdown("""
-    Ask for explanation and examples by inputting a prompt.
+    Her kan dere be om informasjon om kurset, forelesninger, øvinger, gruppearbeid og prosjekter
 """, unsafe_allow_html=True)
 
 with st.form("my_form"):
-    jim_line = st.text_area("Write your command here:", "", height=10, key='option')
-    submitted = st.form_submit_button("Submit")
+    jim_line = st.text_area("Skriv spørsmålene dine her. Tenk grundig gjennom hva du vil spørre om:", "", height=10, key='option')
+    submitted = st.form_submit_button("Send inn")
 
 if submitted and jim_line:  
 
@@ -167,7 +178,7 @@ if submitted and jim_line:
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": get_course_description("description")},
                 {"role": "user", "content": jim_line}
             ]
         )
@@ -202,7 +213,7 @@ if submitted and jim_line:
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": get_course_description("description")},
                 {"role": "user", "content": jim_line}
             ]
         )
@@ -240,22 +251,22 @@ if st.session_state['chat_activated'] == True: # this checks whether the id_stat
         st.write("waiting for the chat ... ")
     else:
 
-        print("the chat_history owrked")
+        print("the chat_history worked!")
         
         for message in chat_history['messages']:
             if message['role'] == 'user':
                     st.markdown(f"""
                     <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9;">
-                        <h4 style="color: #4CAF50; margin-bottom: 5px;">💬 User Input:</h4>
+                        <h4 style="color: #4CAF50; margin-bottom: 5px;">💬 Innspillet Ditt:</h4>
                         <p style="font-size: 16px; color: #333;">{message['message']}</p>
                     </div>
                     """, unsafe_allow_html=True)
             elif message['role'] == 'bot':
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: #f1f1ff;">
-                    <h4 style="color: #2196F3; margin-bottom: 5px;">🤖 BOT Response:</h4>
+                    <h4 style="color: #2196F3; margin-bottom: 5px;">🤖 InnSpill Compis: </h4>
                     <p style="font-size: 16px; color: #555;">{message['message']}</p>
                 </div>
                 """, unsafe_allow_html=True)
 else:
-    print("the chat_history didnt owrk")
+    print("the chat_history didnt work!")

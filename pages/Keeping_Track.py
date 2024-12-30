@@ -48,83 +48,76 @@ elif st.session_state['notification'] == False:
     st.session_state['notification'] = True
    
 username = st.session_state["username"]
+#################### do not need this everywhere
+#if "chat_activated" not in st.session_state:
+#    st.session_state['chat_activated'] = False
+#
+#if 'chat_id_status' not in st.session_state:
+#    chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
+#    count = len(chats)  # Count documents directly from the list
+#    print("A works and id_status will be assigned true")
+#    st.session_state['chat_id_status'] = True
+#
+#    if chats and count > 0:
+#        print("B works")
+#        grouped_chats = {}
+#        for chat in chats:
+#            # Check the structure of `created_at` and handle accordingly
+#            if isinstance(chat['created_at'], datetime):
+#                created_at = chat['created_at'].date()
+#            else:
+#                created_at = datetime.fromtimestamp(
+#                    int(chat['created_at']['$date']['$numberLong']) / 1000
+#                ).date()
+#            grouped_chats.setdefault(created_at, []).append(chat)
+#
+#        with st.sidebar.expander("Chat History", expanded=False):
+#            for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
+#                st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+#                for chat in chats_for_date:
+#                    if st.button(chat['title']):
+#                        st.session_state['chat_id'] = chat['chat_id']
+#                        st.session_state['chat_activated'] = True
+#                        st.switch_page('pages/Project_Buddy.py')
+#    else:
+#        print("C works")
+#        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
+#else:
+#    if st.session_state['chat_id_status'] == True:
+#        print("D works")
+#        chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
+#        count = len(chats)
+#        if chats and count > 0:
+#            print("F works")
+#            grouped_chats = {}
+#            for chat in chats:
+#                # Check the structure of `created_at` and handle accordingly
+#                if isinstance(chat['created_at'], datetime):
+#                    created_at = chat['created_at'].date()
+#                else:
+#                    created_at = datetime.fromtimestamp(
+#                        int(chat['created_at']['$date']['$numberLong']) / 1000
+#                    ).date()
+#                grouped_chats.setdefault(created_at, []).append(chat)
+#
+#            with st.sidebar.expander("Chat History", expanded=False):
+#                for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
+#                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
+#                    for chat in chats_for_date:
+#                        if st.button(chat['title']):
+#                            st.session_state['chat_id'] = chat['chat_id']
+#                            st.session_state['chat_activated'] = True
+#                            st.switch_page('pages/Project_Buddy.py')
+#        else:
+#            print("H works")
+#            st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
+#chat_button = st.sidebar.button("Start New Chat") 
+#if chat_button:
+#    st.session_state['chat_activated'] = False
+#    st.switch_page('pages/Project_Buddy.py')
+###################
 
-if "chat_activated" not in st.session_state:
-    st.session_state['chat_activated'] = False
-
-
-if 'chat_id_status' not in st.session_state:
-    chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
-    count = len(chats)  # Count documents directly from the list
-    print("A works and id_status will be assigned true")
-    st.session_state['chat_id_status'] = True
-
-    if chats and count > 0:
-        print("B works")
-
-        grouped_chats = {}
-        for chat in chats:
-            # Check the structure of `created_at` and handle accordingly
-            if isinstance(chat['created_at'], datetime):
-                created_at = chat['created_at'].date()
-            else:
-                created_at = datetime.fromtimestamp(
-                    int(chat['created_at']['$date']['$numberLong']) / 1000
-                ).date()
-
-            grouped_chats.setdefault(created_at, []).append(chat)
-
-        with st.sidebar.expander("Chat History", expanded=False):
-            for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-                st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
-                for chat in chats_for_date:
-                    if st.button(chat['title']):
-                        st.session_state['chat_id'] = chat['chat_id']
-                        st.session_state['chat_activated'] = True
-                        st.switch_page('pages/Project_Buddy.py')
-
-    else:
-        print("C works")
-        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
-
-else:
-    if st.session_state['chat_id_status'] == True:
-        print("D works")
-        chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
-        count = len(chats)
-
-        if chats and count > 0:
-            print("F works")
-
-            grouped_chats = {}
-            for chat in chats:
-                # Check the structure of `created_at` and handle accordingly
-                if isinstance(chat['created_at'], datetime):
-                    created_at = chat['created_at'].date()
-                else:
-                    created_at = datetime.fromtimestamp(
-                        int(chat['created_at']['$date']['$numberLong']) / 1000
-                    ).date()
-
-                grouped_chats.setdefault(created_at, []).append(chat)
-
-            with st.sidebar.expander("Chat History", expanded=False):
-                for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
-                    for chat in chats_for_date:
-                        if st.button(chat['title']):
-                            st.session_state['chat_id'] = chat['chat_id']
-                            st.session_state['chat_activated'] = True
-                            st.switch_page('pages/Project_Buddy.py')
-
-        else:
-            print("H works")
-            st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
-
-chat_button = st.sidebar.button("Start New Chat") 
-if chat_button:
-    st.session_state['chat_activated'] = False
-    st.switch_page('pages/Project_Buddy.py')            
+st.sidebar.page_link('pages/Project_Buddy.py', label='InnSpill Compis')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
 st.sidebar.page_link('pages/Your_Progress.py', label='Your Progress')
 st.sidebar.page_link('pages/Keeping_Track.py', label='Keeping Track')
@@ -137,10 +130,8 @@ if st.sidebar.button("Log Out"):
 
 ######################################### MAIN PAGE
 
-st.header("Reflecting on your learning progress")
-st.write("To keep track of your learning progress, we need to collect some information from you.")
-st.write("Please complete the form seriously as it might impact the feedback you will receive.")
-
+st.header("Følger fremgangen din her!")
+st.write("Du må registrere fremgangen din ved å fylle ut skjemaet nedenfor når foreleseren får beskjed om det. Du må fylle den nøye og ærlig for å få den mest passende tilbakemeldingen for prosjektet ditt. Hent først det siste skjemaet (hvis noen), og begynn å fylle ut eller redigere skjemaet. Når du er ferdig klikker du på send for å sende skjemaet til foreleseren.")
 
 
 # MongoDB connection setup
@@ -158,7 +149,7 @@ if "retrieved_data" not in st.session_state:
     st.session_state["retrieved_data"] = {}
 
 # Button to retrieve the latest form data
-if st.button("Retrieve Latest Form Data"):
+if st.button("Hent det siste skjemaet"):
     # Fetch the user data
     user_data = destination_collection.find_one({"username": username})  # Query by 'username'
     
@@ -166,9 +157,9 @@ if st.button("Retrieve Latest Form Data"):
         # Sort the forms by timestamp to get the latest one
         latest_form = max(user_data["forms"], key=lambda x: x["timestamp"])
         st.session_state["retrieved_data"] = latest_form
-        st.success("Latest form data retrieved successfully!")
+        st.success("Det siste fremdriftsskjemaet er hentet!")
     else:
-        st.warning("No data found for the user.")
+        st.warning("Det er ikke registrert skjema fra før. Du kan starte din første fremdriftsundersøkelse nå!")
 
 # Display the form
 with st.form("this"):
@@ -202,7 +193,7 @@ with st.form("this"):
     role = st.checkbox("Role", value=st.session_state["retrieved_data"].get("Role", False))
     define = st.checkbox("Define", value=st.session_state["retrieved_data"].get("Define", False))
 
-    submitted_form = st.form_submit_button("Submit Form")
+    submitted_form = st.form_submit_button("Send Inn")
     
     # Submit button to insert or update values in the database
     if submitted_form:
