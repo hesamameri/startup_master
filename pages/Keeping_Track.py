@@ -23,6 +23,7 @@ collection = db['chats']
 # session state checks
 if 'page' not in st.session_state:  # Check if 'page' key exists
     st.session_state['page'] = 'login'
+    st.switch_page("Chatbot.py")
 # pop up welcome message
 if 'notification' not in st.session_state:
     st.session_state['notification'] = True
