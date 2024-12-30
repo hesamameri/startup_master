@@ -148,8 +148,11 @@ connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
 db = client['users']
 destination_collection = db["projects"]
+user_collection = db['usertests']
+
 username = st.session_state['username']  # Use 'username' instead of 'user_id'
 
+user_class = user_collection.find_one({"username": username}).get("class")
 # Initialize session state for retrieved data
 if "retrieved_data" not in st.session_state:
     st.session_state["retrieved_data"] = {}
@@ -218,7 +221,7 @@ with st.form("this"):
             "RiskCount": risk_count,
             "Role": role,
             "Define": define,
-            "timestamp": datetime.utcnow()  # Set the current timestamp
+            "timestamp": datetime.now()  # Set the current timestamp
         }
 
         # Check if the user has any existing project records
@@ -233,9 +236,10 @@ with st.form("this"):
             st.success("Form added successfully!")
         else:
             # Create a new record with the user and the first form entry
+            print(user_class)
             new_user_data = {
                 "username": username,
-                "selected_class": "Bø",  # Add the default class if needed
+                "selected_class": user_class,  # Add the default class if needed
                 "forms": [new_form_data]  # Create the first form entry
             }
             result = destination_collection.insert_one(new_user_data)
