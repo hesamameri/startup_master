@@ -165,14 +165,15 @@ if st.button("Hent det siste skjemaet"):
 # Display the form
 with st.form("this"):
     # Populate form fields with retrieved data or default values
-    st.write("1. Team Formation")
+    st.write("1. Teamwork")
     team_stage = st.selectbox(
         "Team Stage",
-        options=['Found a team', 'Understand'],
-        index=['Found a team', 'Understand'].index(
+        options=['No team found yet' 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'],
+        index=['TeamLevel1', 'TeamLevel2', 'TeamLevel3', 'TeamLevel4', 'TeamLevel5'].index(
             st.session_state["retrieved_data"].get("TeamStage", "Found a team")
         )
     )
+    team_freerider = st.checkbox("Have a member do not contribute sufficiently", value=st.session_state["retrieved_data"].get("TeamFreeRider", False))
     st.write("2. Requirement Engineering")
     project_spec_read = st.checkbox("Read Project Specification", value=st.session_state["retrieved_data"].get("ProjectSpecRead", False))
     project_spec_chat = st.checkbox("Chat with the customer?", value=st.session_state["retrieved_data"].get("ProjectSpecChat", False))
@@ -250,6 +251,7 @@ with st.form("this"):
         # Collect the values into a dictionary for database insertion or update
         new_form_data = {
             "TeamStage": team_stage,
+            "TeamFreeRider": team_freerider,
             "ProjectSpecRead": project_spec_read,
             "ProjectSpecChat": project_spec_chat,
             "ProjectSpecUnderstood": project_spec_understood,
