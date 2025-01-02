@@ -10,7 +10,7 @@ import streamlit as st
 from email.policy import default
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-
+from pymongo.errors import PyMongoError
 from auth import log_out
 st.set_page_config(layout = "wide", page_title="InnSpillAI")
 
@@ -129,25 +129,27 @@ st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
 
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked 
-cathy_line =''
+
+cathy_line = ''
 jim_line = ''
 starting_line = ''
+
 def get_response(jim_line):
-    output =  "dummy"
-    return output                                                                                                                                                                                                             
+    return "dummy"
+
 database_name = "users"
 collection_name = "Exercise_def"
 
-def add_exercise_item(item,collection_name='exercises'):
+def add_exercise_item(item, collection_name='exercises'):
     client = pymongo.MongoClient(connection_string)
     db = client[database_name]
     collection = db[collection_name]
-    collection.insert(item)
-    print("insertion successful")
+    collection.insert_one(item)
+    print("Insertion successful")
 
-def get_feedback_llm(user_response,ai_instruction):
+def get_feedback_llm(user_response, ai_instruction):
     try:
-        response = openai.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": ai_instruction},
@@ -158,119 +160,169 @@ def get_feedback_llm(user_response,ai_instruction):
     except Exception as e:
         return f"Error generating feedback: {e}"
 
-    
-
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
 db = client[database_name]
 collection = db[collection_name]
-modules = collection.find()  # Fetch all documents
 
-# Extract module names from the "module_name" field in the documents
-module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
+try:
+    modules = collection.find()  # Fetch all documents
+    module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
 
-# Create tabs based on the number of modules
-tabs = st.tabs(module_names)
-selected_task = None
+    # Check if module_names is non-empty
+    if module_names:
+        tabs = st.tabs(module_names)
+        selected_task = None
 
-# Iterate through the module names
-for i, module_name in enumerate(module_names):
-    tab = tabs[i]
-    with tab:
-        # Query the module data from the Exercise_defs collection based on module_name
-        module_record = collection.find_one({"module_name": module_name})
+        for i, module_name in enumerate(module_names):
+            tab = tabs[i]
+            with tab:
+                module_record = collection.find_one({"module_name": module_name})
 
-        if module_record:
-            # Get module data
-            module_data = module_record
-            # Display the module description
-            module_description = module_data.get('module_description', 'No description available.')
-            st.write(f"**Module Description**: {module_description}")  # Display the module description
+                if module_record:
+                    module_description = module_record.get('module_description', 'No description available.')
+                    st.write(f"**Module Description**: {module_description}")
 
-            # Get exercises from the module data
-            tasks = module_data.get('exercises', [])
-            tasks_count = len(tasks)  # Count the number of tasks
+                    tasks = module_record.get('exercises', [])
+                    tasks_count = len(tasks)
+                    cols = st.columns(tasks_count)
+                    selected_task = None
 
-            # Create columns based on the number of tasks
-            cols = st.columns(tasks_count)
+                    for idx, task in enumerate(tasks):
+                        col = cols[idx]
+                        with col:
+                            unique_key = f"{i}_{module_name}_{idx}"
+                            if st.button(task['title'], key=unique_key, use_container_width=True):
+                                selected_task = task
+                                st.session_state['selected_task'] = selected_task
+                                st.session_state['ai_instruction'] = task['ai_instruction']
 
-            selected_task = None  # Reset selected_task
+                    if selected_task:
+                        st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
 
-            for idx, task in enumerate(tasks):
-                col = cols[idx]
-                with col:
-                    if st.button(task['title'], key=task['exercise_key'], use_container_width=True):
-                        selected_task = task  # Update the selected task
-                        st.session_state['selected_task'] = selected_task
-                        st.session_state['ai_instruction'] = task['ai_instruction']
+                    with st.expander("Submit your exercise here"):
+                        with st.form(f"my_form_{i}"):
+                            email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
+                            response = st.text_area("Write your exercise here", "", height=200)
+                            submitted = st.form_submit_button("Submit")
 
-            if selected_task:
-                st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
+                        if submitted:
+                            item = st.session_state['selected_task']
+                            item['user_id'] = st.session_state['username']
+                            item['class'] = module_record['class']
+                            item['email_feedback'] = email_feedback
+                            item['response'] = response
+                            item['feedback'] = get_feedback_llm(response, st.session_state['ai_instruction'])
+                            item['feedback_grade'] = 1
+                            item['feedback_sent'] = False
 
-            with st.expander("Submit your exercise here"):
-                with st.form(f"my_form{i}"):
-                    email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
-                    response = st.text_area("Write your exercise here", "", height=200)
-                    submitted = st.form_submit_button("Submit")
-                if submitted:
-                    item = st.session_state['selected_task']
-                    item['user_id'] = st.session_state['username']
-                    item['class'] = module_data['class']  # Use the class from the module data
-                    item['email_feedback'] = email_feedback
-                    item['response'] = response
-                    item['feedback'] = get_feedback_llm(response, st.session_state['ai_instruction'])  # Generate feedback
-                    item['feedback_grade'] = 1
-                    item['feedback_sent'] = False
+                            add_exercise_item(item)
+                else:
+                    st.info("This module has no available data. Please check back later.")
+    else:
+        st.warning("No modules yet.Wait for further instruction")
 
-                    add_exercise_item(item)  # Save the item
-
-
-# Display each module in the loop
-# for i, tab_name in enumerate(module_names):
-#     tab = tabs[i]
-#     with tab:
-#         # Query the module data from the collection
-#         module_record = collection.find_one({tab_name: {'$exists': True}})
-#         if module_record:
-#             module_data = module_record[tab_name]
-#             image_url = module_data['image']
-#             st.image(image_url, caption=tab_name, width=400)  # Display the image
-            
-#             # Get tasks from the module data
-#             tasks = module_data['exercises']
-#             tasks_count = len(tasks)  # Count the number of tasks
-            
-#             # Create columns based on the number of tasks
-#             cols = st.columns(tasks_count)
-            
-#             for idx, task in enumerate(tasks):
-#                 col = cols[idx]
-#                 with col:
-                    
-#                     if st.button(task['title'], key=task['key'], use_container_width=True):
-#                         selected_task = task  # Update the selected task
-#                         st.session_state['selected_task'] = selected_task
-#             if selected_task:
-#                 st.markdown(f"**Description**  \n {selected_task['description']}", unsafe_allow_html=True)
-
-#             with st.expander("Submit your exercise here"):
-#                 with st.form(f"my_form{i}"):
-#                     email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
-#                     response = st.text_area("Write your exercise here", "", height=200)
-#                     submitted = st.form_submit_button("Submit")
-#                 if submitted:
-#                     item = st.session_state['selected_task']
-#                     item['user_id'] = st.session_state['username']
-#                     item['class'] = "Bø"
-#                     item['email_feedback'] = email_feedback
-#                     item['response'] = response
-#                     item['feedback'] = get_feedback_llm(response)  # Generate feedback
-#                     item['feedback_sent'] = False
-                    
-#                     add_exercise_item(item)  # Save the item
+except Exception as e:
+    st.error(f"An unexpected error occurred: {e}")
 
 
 
 
+# cathy_line =''
+# jim_line = ''
+# starting_line = ''
+# def get_response(jim_line):
+#     output =  "dummy"
+#     return output                                                                                                                                                                                                             
+# database_name = "users"
+# collection_name = "Exercise_def"
 
+# def add_exercise_item(item,collection_name='exercises'):
+#     client = pymongo.MongoClient(connection_string)
+#     db = client[database_name]
+#     collection = db[collection_name]
+#     collection.insert(item)
+#     print("insertion successful")
 
+# def get_feedback_llm(user_response,ai_instruction):
+#     try:
+#         response = openai.chat.completions.create(
+#             model="gpt-4",
+#             messages=[
+#                 {"role": "system", "content": ai_instruction},
+#                 {"role": "user", "content": user_response}
+#             ]
+#         )
+#         return response.choices[0].message.content.strip()
+#     except Exception as e:
+#         return f"Error generating feedback: {e}"
+
+    
+
+# connection_string = st.secrets['mongo']['uri']
+# client = pymongo.MongoClient(connection_string)
+# db = client[database_name]
+# collection = db[collection_name]
+# try:
+#     modules = collection.find()  # Fetch all documents
+#     # Extract module names from the "module_name" field in the documents
+#     module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
+
+#     # Create tabs based on the number of modules
+#     tabs = st.tabs(module_names)
+#     selected_task = None
+
+#     # Iterate through the module names
+#     for i, module_name in enumerate(module_names):
+#         tab = tabs[i]
+#         with tab:
+#             # Query the module data from the Exercise_defs collection based on module_name
+#             module_record = collection.find_one({"module_name": module_name})
+
+#             if module_record:
+#                 # Get module data
+#                 module_data = module_record
+#                 # Display the module description
+#                 module_description = module_data.get('module_description', 'No description available.')
+#                 st.write(f"**Module Description**: {module_description}")  # Display the module description
+
+#                 # Get exercises from the module data
+#                 tasks = module_data.get('exercises', [])
+#                 tasks_count = len(tasks)  # Count the number of tasks
+
+#                 # Create columns based on the number of tasks
+#                 cols = st.columns(tasks_count)
+
+#                 selected_task = None  # Reset selected_task
+
+#                 for idx, task in enumerate(tasks):
+#                     col = cols[idx]
+#                     with col:
+#                         if st.button(task['title'], key=task['exercise_key'], use_container_width=True):
+#                             selected_task = task  # Update the selected task
+#                             st.session_state['selected_task'] = selected_task
+#                             st.session_state['ai_instruction'] = task['ai_instruction']
+
+#                 if selected_task:
+#                     st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
+
+#                 with st.expander("Submit your exercise here"):
+#                     with st.form(f"my_form{i}"):
+#                         email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
+#                         response = st.text_area("Write your exercise here", "", height=200)
+#                         submitted = st.form_submit_button("Submit")
+#                     if submitted:
+#                         item = st.session_state['selected_task']
+#                         item['user_id'] = st.session_state['username']
+#                         item['class'] = module_data['class']  # Use the class from the module data
+#                         item['email_feedback'] = email_feedback
+#                         item['response'] = response
+#                         item['feedback'] = get_feedback_llm(response, st.session_state['ai_instruction'])  # Generate feedback
+#                         item['feedback_grade'] = 1
+#                         item['feedback_sent'] = False
+
+#                         add_exercise_item(item)  # Save the item
+#             else:
+#                 st.info("This module has no available data. Please check back later.")
+# except Exception:
+#     st.error("An unexpected error occurred. Please try again later.")
