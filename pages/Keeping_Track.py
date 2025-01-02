@@ -168,7 +168,7 @@ with st.form("this"):
     st.write("1. Teamwork")
     team_stage = st.selectbox(
         "Team Stage",
-        options=['No team found yet' 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'],
+        options=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'],
         index=['TeamLevel1', 'TeamLevel2', 'TeamLevel3', 'TeamLevel4', 'TeamLevel5'].index(
             st.session_state["retrieved_data"].get("TeamStage", "TeamLevel1")
         )
