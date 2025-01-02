@@ -243,7 +243,7 @@ with st.form("this"):
     project_tool_closed = st.checkbox("Do you finalize or close your working spaces with tools?", value=st.session_state["retrieved_data"].get("ProjectToolClosed", False))
     project_midterm_slide = st.checkbox("Do you have the midterm presentation slide?", value=st.session_state["retrieved_data"].get("SlideMidterm", False))
     project_final_slide = st.checkbox("Do you have the final presentation slide?", value=st.session_state["retrieved_data"].get("SlideFinal", False))
-
+    submitted_form = st.form_submit_button("Save form")
     
     # Submit button to insert or update values in the database
     if submitted_form:
