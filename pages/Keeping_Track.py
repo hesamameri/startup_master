@@ -165,7 +165,7 @@ if st.button("Hent det siste skjemaet"):
 # Display the form
 with st.form("this"):
     # Populate form fields with retrieved data or default values
-    st.write("Team Formation")
+    st.write("1. Team Formation")
     team_stage = st.selectbox(
         "Team Stage",
         options=['Found a team', 'Understand'],
@@ -173,28 +173,77 @@ with st.form("this"):
             st.session_state["retrieved_data"].get("TeamStage", "Found a team")
         )
     )
-    st.write("Project Planning")
-    project_spec = st.checkbox("Project Specification", value=st.session_state["retrieved_data"].get("ProjectSpec", False))
-    project_req = st.checkbox("Project Requirements", value=st.session_state["retrieved_data"].get("ProjectReq", False))
-    communication = st.checkbox("Communication", value=st.session_state["retrieved_data"].get("Communication", False))
-    project_management = st.checkbox("Project Management", value=st.session_state["retrieved_data"].get("ProjectManagement", False))
-    ide_setup = st.checkbox("IDE Setup", value=st.session_state["retrieved_data"].get("IDESetup", False))
-    collaboration = st.checkbox("Collaboration", value=st.session_state["retrieved_data"].get("Collaboration", False))
-    learning_experience = st.checkbox("Learning Experience", value=st.session_state["retrieved_data"].get("LearningExperience", False))
+    st.write("2. Requirement Engineering")
+    project_spec_read = st.checkbox("Read Project Specification", value=st.session_state["retrieved_data"].get("ProjectSpecRead", False))
+    project_spec_chat = st.checkbox("Chat with the customer?", value=st.session_state["retrieved_data"].get("ProjectSpecChat", False))
+    project_spec_understood = st.checkbox("Understand what to do and not?", value=st.session_state["retrieved_data"].get("ProjectSpecUnderstood", False))
+    project_func_req = st.checkbox("Describe functional requirements", value=st.session_state["retrieved_data"].get("ProjectFuncReq", False))
+    project_nonfunc_req = st.checkbox("Describe non-functional requirements", value=st.session_state["retrieved_data"].get("ProjectNonFuncReq", False))
+    st.write("3. Configuration Management")
+    tool_repo = st.checkbox("Set up a project repository - Github, Dropbox, etc", value=st.session_state["retrieved_data"].get("ToolRepo", False))
+    tool_comm = st.checkbox("Set up a communication tool - Team, Slack, etc", value=st.session_state["retrieved_data"].get("ToolComm", False))
+    tool_mngt = st.checkbox("Set up a project management tool - Trello, Monday, etc", value=st.session_state["retrieved_data"].get("ToolMngt", False))
+    tool_ides = st.checkbox("Set up a development environments - Visual Studio, Wix, etc", value=st.session_state["retrieved_data"].get("ToolIDEs", False))
+    tool_mvps = st.checkbox("Set up a prototyping tool - Figma", value=st.session_state["retrieved_data"].get("ToolMVPs", False))
+    tool_docs = st.checkbox("Set up a collaborative documenting tool - Google Doc, Word 365, etc", value=st.session_state["retrieved_data"].get("ToolDocs", False))
+    tool_innspill = st.checkbox("Set up account to InnSpill AI", value=st.session_state["retrieved_data"].get("ToolInnspill", False))
+    st.write("4. Scope and Time Management")
     wbs = st.selectbox(
         "WBS",
         options=['CreateAV', 'ValidateAV'],
         index=['CreateAV', 'ValidateAV'].index(
             st.session_state["retrieved_data"].get("WBS", "CreateAV")
         )
-    )
-    st.write("Risk Assessment")
-    risk_score = st.checkbox("Risk Score", value=st.session_state["retrieved_data"].get("RiskScore", False))
-    risk_count = st.checkbox("Risk Count", value=st.session_state["retrieved_data"].get("RiskCount", False))
-    role = st.checkbox("Role", value=st.session_state["retrieved_data"].get("Role", False))
-    define = st.checkbox("Define", value=st.session_state["retrieved_data"].get("Define", False))
+    )  
+    time_estimated = st.checkbox("Time Estimated for Activities ?", value=st.session_state["retrieved_data"].get("TimeEstimated", False))
+    ganttchart = st.selectbox(
+        "GanttChart",
+        options=['CreateGC', 'ValidateGC'],
+        index=['CreateGC', 'ValidateGC'].index(
+            st.session_state["retrieved_data"].get("GanttChart", "CreateGC")
+        )
+    )      
+    st.write("5. Risk and Communication Management")
+    risk_table = st.checkbox("Develop a risk table and calculate risk score", value=st.session_state["retrieved_data"].get("RiskTable", False))
+    risk_resolved = st.checkbox("Develop countermeasure for all risk items", value=st.session_state["retrieved_data"].get("RiskResolved", False))
+    role_defined = st.checkbox("Define all roles in the project?", value=st.session_state["retrieved_data"].get("RoleDefined", False))
+    task_assigned = st.checkbox("Assign tasks for all member in the project?", value=st.session_state["retrieved_data"].get("TaskAssigned", False))
+    communication_plan = st.checkbox("Develop a communication plan for the project", value=st.session_state["retrieved_data"].get("CmmPlan", False))
 
-    submitted_form = st.form_submit_button("Send Inn")
+    st.write("6. Prototyping")
+    prototype_low = st.checkbox("Create a low-fidelity prototype with paper and pen", value=st.session_state["retrieved_data"].get("PrototypeLow", False))
+    prototype_high = st.checkbox("Create a high-fidelity prototype with Figma", value=st.session_state["retrieved_data"].get("PrototypeHigh", False))
+    prototype_website = st.checkbox("Create a functional website", value=st.session_state["retrieved_data"].get("PrototypeWebsite", False))
+    prototype_law = st.checkbox("Learn about UX law for design - Gestal Law, WCAG, etc", value=st.session_state["retrieved_data"].get("PrototypeLaw", False))
+
+    st.write("7. Agile Development")
+    agile_user_stories = st.checkbox("Use user stories for requirement documentation", value=st.session_state["retrieved_data"].get("AgileUserStories", False))
+    agile_product_backlog = st.checkbox("Create a product backlog", value=st.session_state["retrieved_data"].get("AgileProductBacklog", False))
+    agile_sprint_backlog = st.checkbox("Create a Sprint backlog", value=st.session_state["retrieved_data"].get("AgileSprintBacklog", False))
+    agile_backlog_assigned = st.checkbox("Assign backlog items to a person", value=st.session_state["retrieved_data"].get("AgileBacklogAssigned", False))
+    agile_kanban = st.checkbox("Setup Kanban board with ToDo, Doing and Done columns?", value=st.session_state["retrieved_data"].get("AgileKanban", False))
+    agile_meeting_planning = st.checkbox("Conduct a Sprint planning meeting?", value=st.session_state["retrieved_data"].get("AgileSprintPlanning", False))
+    agile_meeting_review = st.checkbox("Conduct a Sprint review meeting?", value=st.session_state["retrieved_data"].get("AgileSprintReview", False))
+    agile_meeting_retro = st.checkbox("Conduct a Sprint retrospective meeting?", value=st.session_state["retrieved_data"].get("AgileSprintRetroSpective", False))
+
+    st.write("8. Solution Design")
+    technical_solution = st.checkbox("Do you decide technologies, frameworks or tools to implement the website?", value=st.session_state["retrieved_data"].get("TechnicalSolution", False))
+    architectural_design = st.checkbox("Do you decide or know about the architecture of the website?", value=st.session_state["retrieved_data"].get("ArchitecturalDesign", False))
+
+    st.write("9. Testing")
+    test_plan = st.checkbox("Do you have an overall test plan?", value=st.session_state["retrieved_data"].get("TestPlan", False))
+    test_case = st.checkbox("Do you have all test cases you need?", value=st.session_state["retrieved_data"].get("TestCase", False))
+    test_usability = st.checkbox("Do you have an usability testing plan?", value=st.session_state["retrieved_data"].get("TestUsability", False))
+    test_result = st.checkbox("Do you document the test result?", value=st.session_state["retrieved_data"].get("TestResult", False))
+
+    st.write("10. Project Closing")
+    project_report = st.checkbox("Do you finish your final report?", value=st.session_state["retrieved_data"].get("ProjectReport", False))
+    project_website = st.checkbox("Do you have the website ready for demo?", value=st.session_state["retrieved_data"].get("ProjectWebsite", False))
+    project_oblig = st.checkbox("Do you check that all Obligs are approved?", value=st.session_state["retrieved_data"].get("ProjectOblig", False))
+    project_tool_closed = st.checkbox("Do you finalize or close your working spaces with tools?", value=st.session_state["retrieved_data"].get("ProjectToolClosed", False))
+    project_midterm_slide = st.checkbox("Do you have the midterm presentation slide?", value=st.session_state["retrieved_data"].get("SlideMidterm", False))
+    project_final_slide = st.checkbox("Do you have the final presentation slide?", value=st.session_state["retrieved_data"].get("SlideFinal", False))
+
     
     # Submit button to insert or update values in the database
     if submitted_form:
