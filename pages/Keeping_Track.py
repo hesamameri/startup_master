@@ -190,17 +190,17 @@ with st.form("this"):
     st.write("4. Scope and Time Management")
     wbs = st.selectbox(
         "WBS",
-        options=['CreateAV', 'ValidateAV'],
-        index=['CreateAV', 'ValidateAV'].index(
-            st.session_state["retrieved_data"].get("WBS", "CreateAV")
+        options=['WBS is created', 'WBS is validated'],
+        index=['CreateWBS', 'ValidateWBS'].index(
+            st.session_state["retrieved_data"].get("WBS", "CreateWBS")
         )
     )  
     time_estimated = st.checkbox("Time Estimated for Activities ?", value=st.session_state["retrieved_data"].get("TimeEstimated", False))
     ganttchart = st.selectbox(
         "GanttChart",
-        options=['CreateGC', 'ValidateGC'],
-        index=['CreateGC', 'ValidateGC'].index(
-            st.session_state["retrieved_data"].get("GanttChart", "CreateGC")
+        options=['Gantt Chart is created', 'Gantt Chart is validated'],
+        index=['CreateGantt', 'ValidateGantt'].index(
+            st.session_state["retrieved_data"].get("GanttChart", "CreateGantt")
         )
     )      
     st.write("5. Risk and Communication Management")
