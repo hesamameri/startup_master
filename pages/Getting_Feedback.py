@@ -126,9 +126,24 @@ exercise_collection = db['exercises']
 
 
 ##############
-
-
-
+def check_submission_feedback(task_name):
+    collection = db['exercises']
+    username = st.session_state['username']
+    # Query to find an existing record with the same username and exercise title
+    query = {"user_id": username, "title": task_name}
+    exercise_selected = collection.find_one(query)
+    if exercise_selected:
+        feedback_status = exercise_selected['feedback_sent']
+        
+        if feedback_status:
+            
+            return exercise_selected['feedback']
+        else:
+        
+            return None
+    else:
+        return False
+#############
 
 
 try:
@@ -167,6 +182,15 @@ try:
                     if selected_task:
                         st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
                         
+                        
+                    
+                    
+                    
+                    
+                   
+
+
+
                     with st.expander("Submit your exercise here"):
                         with st.form(f"my_form_{i}"):
                             email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
@@ -192,6 +216,32 @@ try:
                         message_placeholder.info(success_message)  # Show success message
                     else:
                         st.info("Please submit your exercise")
+
+                    st.markdown(
+                            f"""
+                            <h2> Feedback Section </h2>
+                            <aside style="background-color: #f1f1f1; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                <strong>Notification:</strong> Choose the exercise to see the corresponding feedback.
+                            </aside>
+                            """, 
+                            unsafe_allow_html=True
+                        )
+                    if 'selected_task' in st.session_state:
+                        
+                        set_status = check_submission_feedback(st.session_state['selected_task']['title'])
+                        
+                        if set_status is not None and set_status:
+                            st.markdown(
+                                f"""
+                                <div style="padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <h2 style="font-weight: bold; font-size: 24px; text-align: center; color: black;">Feedback</h2>
+                                    <p style="font-size: 18px; color: black; line-height: 1.6; padding: 10px 0;">
+                                        {set_status}
+                                    </p>
+                                </div>
+                                """, 
+                                unsafe_allow_html=True
+                            )
                             
 ##################################################
                 else:
