@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 import pymongo
 import streamlit as st
 from openai import OpenAI
@@ -52,74 +53,7 @@ elif st.session_state['notification'] == False:
     st.session_state['notification'] = True
    
 username = st.session_state["username"]
-#################### do not need this everywhere
-#if "chat_activated" not in st.session_state:
-#    st.session_state['chat_activated'] = False
-#
-#if 'chat_id_status' not in st.session_state:
-#    chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
-#    count = len(chats)  # Count documents directly from the list
-#    print("A works and id_status will be assigned true")
-#    st.session_state['chat_id_status'] = True
-#
-#    if chats and count > 0:
-#        print("B works")
-#        grouped_chats = {}
-#        for chat in chats:
-#            # Check the structure of `created_at` and handle accordingly
-#            if isinstance(chat['created_at'], datetime):
-#                created_at = chat['created_at'].date()
-#            else:
-#                created_at = datetime.fromtimestamp(
-#                    int(chat['created_at']['$date']['$numberLong']) / 1000
-#                ).date()
-#            grouped_chats.setdefault(created_at, []).append(chat)
-#
-#        with st.sidebar.expander("Chat History", expanded=False):
-#            for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-#                st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
-#                for chat in chats_for_date:
-#                    if st.button(chat['title']):
-#                        st.session_state['chat_id'] = chat['chat_id']
-#                        st.session_state['chat_activated'] = True
-#                        st.switch_page('pages/Project_Buddy.py')
-#    else:
-#        print("C works")
-#        st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
-#else:
-#    if st.session_state['chat_id_status'] == True:
-#        print("D works")
-#        chats = list(collection.find({"username": username}))  # Convert cursor to list for reuse
-#        count = len(chats)
-#        if chats and count > 0:
-#            print("F works")
-#            grouped_chats = {}
-#            for chat in chats:
-#                # Check the structure of `created_at` and handle accordingly
-#                if isinstance(chat['created_at'], datetime):
-#                    created_at = chat['created_at'].date()
-#                else:
-#                    created_at = datetime.fromtimestamp(
-#                        int(chat['created_at']['$date']['$numberLong']) / 1000
-#                    ).date()
-#                grouped_chats.setdefault(created_at, []).append(chat)
-#
-#            with st.sidebar.expander("Chat History", expanded=False):
-#                for date, chats_for_date in sorted(grouped_chats.items(), key=lambda item: item[0], reverse=True):
-#                    st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
-#                    for chat in chats_for_date:
-#                        if st.button(chat['title']):
-#                            st.session_state['chat_id'] = chat['chat_id']
-#                            st.session_state['chat_activated'] = True
-#                            st.switch_page('pages/Project_Buddy.py')
-#        else:
-#            print("H works")
-#            st.sidebar.page_link('pages/Project_Buddy.py', label='Chat History')
-#chat_button = st.sidebar.button("Start New Chat") 
-#if chat_button:
-#    st.session_state['chat_activated'] = False
-#    st.switch_page('pages/Project_Buddy.py')
-###################
+
 
 st.sidebar.page_link('pages/Project_Buddy.py', label='InnSpill Compis')
 st.sidebar.page_link('pages/Getting_Feedback.py', label='Getting Feedback')
@@ -130,6 +64,8 @@ st.sidebar.page_link('pages/Meeting_Room.py', label='Meeting Room')
 if st.sidebar.button("Log Out"):
     log_out()  # Call the log_out function when the button is clicked 
 
+
+# Initialize variables
 cathy_line = ''
 jim_line = ''
 starting_line = ''
@@ -144,26 +80,56 @@ def add_exercise_item(item, collection_name='exercises'):
     client = pymongo.MongoClient(connection_string)
     db = client[database_name]
     collection = db[collection_name]
-    collection.insert_one(item)
-    print("Insertion successful")
-
-def get_feedback_llm(user_response, ai_instruction):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": ai_instruction},
-                {"role": "user", "content": user_response}
-            ]
+    
+    # Query to find an existing record with the same username and exercise title
+    query = {"user_id": item["user_id"], "title": item["title"]}
+    existing_item = collection.find_one(query)
+    
+    if existing_item:
+        # If the item exists, check and increment "attempts"
+        current_attempts = existing_item.get("attempts", 0)
+        if current_attempts >= 3:
+            message = "Update blocked. Maximum attempts reached."
+            return False,message
+           
+        
+        # Update response, timestamp, and increment attempts
+        collection.update_one(
+            query,
+            {
+                "$set": {
+                    "response": item["response"],
+                    "timestamp": item["timestamp"]
+                },
+                "$inc": {"attempts": 1}  # Increment attempts by 1
+            }
         )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error generating feedback: {e}"
+        message = f"Item updated successfully. Attempt {current_attempts + 1}/3."
+        
+        return True,message
+        
+    else:
+        # If the item doesn't exist, insert it with "attempts" set to 1
 
+        item["attempts"] = 1
+        collection.insert_one(item)
+        message = "Insertion successful. Attempt 1/3."
+        st.success(message)
+        return True,message
+
+# MongoDB connection string
 connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
 db = client[database_name]
 collection = db[collection_name]
+exercise_collection = db['exercises']
+
+
+##############
+
+
+
+
 
 try:
     modules = collection.find()  # Fetch all documents
@@ -182,7 +148,8 @@ try:
                 if module_record:
                     module_description = module_record.get('module_description', 'No description available.')
                     st.write(f"**Module Description**: {module_description}")
-
+                    if 'submission' in st.session_state:
+                        del st.session_state['submission']
                     tasks = module_record.get('exercises', [])
                     tasks_count = len(tasks)
                     cols = st.columns(tasks_count)
@@ -199,7 +166,7 @@ try:
 
                     if selected_task:
                         st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
-
+                        
                     with st.expander("Submit your exercise here"):
                         with st.form(f"my_form_{i}"):
                             email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
@@ -212,117 +179,27 @@ try:
                             item['class'] = module_record['class']
                             item['email_feedback'] = email_feedback
                             item['response'] = response
-                            item['feedback'] = get_feedback_llm(response, st.session_state['ai_instruction'])
+                            item['feedback'] = None
                             item['feedback_grade'] = 1
                             item['feedback_sent'] = False
-
-                            add_exercise_item(item)
+                            item['timestamp'] = datetime.now()
+                            # submission_status,message = 
+                            st.session_state['submission'] = add_exercise_item(item)
+                    # Simulating submission
+                    if 'submission' in st.session_state:
+                        success_message = st.session_state['submission'][1]
+                        message_placeholder = st.empty()  # Create an empty placeholder
+                        message_placeholder.info(success_message)  # Show success message
+                    else:
+                        st.info("Please submit your exercise")
+                            
+##################################################
                 else:
                     st.info("This module has no available data. Please check back later.")
     else:
-        st.warning("No modules yet.Wait for further instruction")
+        st.warning("No modules yet. Wait for further instruction.")
 
 except Exception as e:
     st.error(f"An unexpected error occurred: {e}")
 
-
-
-
-# cathy_line =''
-# jim_line = ''
-# starting_line = ''
-# def get_response(jim_line):
-#     output =  "dummy"
-#     return output                                                                                                                                                                                                             
-# database_name = "users"
-# collection_name = "Exercise_def"
-
-# def add_exercise_item(item,collection_name='exercises'):
-#     client = pymongo.MongoClient(connection_string)
-#     db = client[database_name]
-#     collection = db[collection_name]
-#     collection.insert(item)
-#     print("insertion successful")
-
-# def get_feedback_llm(user_response,ai_instruction):
-#     try:
-#         response = openai.chat.completions.create(
-#             model="gpt-4",
-#             messages=[
-#                 {"role": "system", "content": ai_instruction},
-#                 {"role": "user", "content": user_response}
-#             ]
-#         )
-#         return response.choices[0].message.content.strip()
-#     except Exception as e:
-#         return f"Error generating feedback: {e}"
-
-    
-
-# connection_string = st.secrets['mongo']['uri']
-# client = pymongo.MongoClient(connection_string)
-# db = client[database_name]
-# collection = db[collection_name]
-# try:
-#     modules = collection.find()  # Fetch all documents
-#     # Extract module names from the "module_name" field in the documents
-#     module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
-
-#     # Create tabs based on the number of modules
-#     tabs = st.tabs(module_names)
-#     selected_task = None
-
-#     # Iterate through the module names
-#     for i, module_name in enumerate(module_names):
-#         tab = tabs[i]
-#         with tab:
-#             # Query the module data from the Exercise_defs collection based on module_name
-#             module_record = collection.find_one({"module_name": module_name})
-
-#             if module_record:
-#                 # Get module data
-#                 module_data = module_record
-#                 # Display the module description
-#                 module_description = module_data.get('module_description', 'No description available.')
-#                 st.write(f"**Module Description**: {module_description}")  # Display the module description
-
-#                 # Get exercises from the module data
-#                 tasks = module_data.get('exercises', [])
-#                 tasks_count = len(tasks)  # Count the number of tasks
-
-#                 # Create columns based on the number of tasks
-#                 cols = st.columns(tasks_count)
-
-#                 selected_task = None  # Reset selected_task
-
-#                 for idx, task in enumerate(tasks):
-#                     col = cols[idx]
-#                     with col:
-#                         if st.button(task['title'], key=task['exercise_key'], use_container_width=True):
-#                             selected_task = task  # Update the selected task
-#                             st.session_state['selected_task'] = selected_task
-#                             st.session_state['ai_instruction'] = task['ai_instruction']
-
-#                 if selected_task:
-#                     st.markdown(f"**Description**  \n {selected_task['exercise_description']}", unsafe_allow_html=True)
-
-#                 with st.expander("Submit your exercise here"):
-#                     with st.form(f"my_form{i}"):
-#                         email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
-#                         response = st.text_area("Write your exercise here", "", height=200)
-#                         submitted = st.form_submit_button("Submit")
-#                     if submitted:
-#                         item = st.session_state['selected_task']
-#                         item['user_id'] = st.session_state['username']
-#                         item['class'] = module_data['class']  # Use the class from the module data
-#                         item['email_feedback'] = email_feedback
-#                         item['response'] = response
-#                         item['feedback'] = get_feedback_llm(response, st.session_state['ai_instruction'])  # Generate feedback
-#                         item['feedback_grade'] = 1
-#                         item['feedback_sent'] = False
-
-#                         add_exercise_item(item)  # Save the item
-#             else:
-#                 st.info("This module has no available data. Please check back later.")
-# except Exception:
-#     st.error("An unexpected error occurred. Please try again later.")
+#####################################################

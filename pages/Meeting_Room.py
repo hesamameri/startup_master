@@ -130,7 +130,7 @@ connection_string = st.secrets['mongo']['uri']
 client = pymongo.MongoClient(connection_string)
 db = client['users']
 collection = db["meeting"]
-
+user_collection = db['usertests']
 # OpenAI API key setup
 openai.api_key = st.secrets["api"]["key"]
 
@@ -175,7 +175,13 @@ active_meeting_type = get_active_meeting_type()
 
 # Get the username from session state
 username = st.session_state['username']  # Replace 'default_user' with a logic for the current user
-
+user_item = user_collection.find_one(
+    {"username": username} # Projection to include "class" and exclude "_id"
+)
+if "class" not in user_item:
+    class_name = "USN25_PRO1000_Bo"
+else:
+    class_name = user_item['class']
 # Check if a chat record exists for the current user and meeting type
 chat_record = collection.find_one({"username": username, "meet_type": active_meeting_type})
 
@@ -234,7 +240,7 @@ else:
                 else:
                     # Generate feedback using ChatGPT
                     feedback = generate_feedback(user_response)
-
+                    
                     new_entry = {"response": user_response, "feedback": feedback}
 
                     if chat_record:
@@ -269,11 +275,14 @@ else:
 
         if st.button("Avslutt Samtalen"):
             if chat_record:
+                del st.session_state['chat_history']
+                chat_placeholder = st.empty()
                 # Set the chat_ended field to True and add a timestamp when the chat ends
                 collection.update_one(
                     {"_id": chat_record["_id"]},
                     {"$set": {
                         "chat_ended": True,
+                        "class" : class_name,
                         "timestamp": datetime.now()
                     }}
                 )
@@ -284,7 +293,7 @@ else:
             else:
                 # Message for when the active meeting type is not "customermeeting"
                 st.warning("No customer meeting is currently active.")
-
+    
 
 
 
