@@ -254,6 +254,10 @@ else:
                         new_chat = {
                             "username": username,
                             "meet_type": active_meeting_type,
+                            "timestamp": datetime.now(), 
+                            "chat_ended": False,
+                            "meeting_summary": "",
+                            "evaluation": "",
                             "chat": [new_entry]
                         }
                         collection.insert_one(new_chat)
