@@ -168,9 +168,9 @@ with st.form("this"):
     st.write("1. Teamwork")
     team_stage = st.selectbox(
         "Team Stage",
-        options=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'],
-        index=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'].index(
-            st.session_state["retrieved_data"].get("TeamStage", 'No team found yet')
+        options=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Perform at your best'],
+        index=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Perform at your best'].index(
+            st.session_state["retrieved_data"].get("TeamStage", "No team found yet")
         )
     )
     team_freerider = st.checkbox("Have a member do not contribute sufficiently", value=st.session_state["retrieved_data"].get("TeamFreeRider", False))
@@ -200,8 +200,8 @@ with st.form("this"):
     ganttchart = st.selectbox(
         "GanttChart",
         options=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'],
-        index=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'].index(
-            st.session_state["retrieved_data"].get("GanttChart", 'Not done')
+        index=['CreateNoGantt', 'CreateGantt', 'ValidateGantt'].index(
+            st.session_state["retrieved_data"].get("GanttChart", "CreateNoGantt")
         )
     )      
     st.write("5. Risk and Communication Management")
