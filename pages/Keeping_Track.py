@@ -169,8 +169,8 @@ with st.form("this"):
     team_stage = st.selectbox(
         "Team Stage",
         options=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'],
-        index=['TeamLevel1', 'TeamLevel2', 'TeamLevel3', 'TeamLevel4', 'TeamLevel5'].index(
-            st.session_state["retrieved_data"].get("TeamStage", "TeamLevel1")
+        index=['No team found yet', 'Found a team', 'Agree a common work practice', 'A lot of discussion and work session', 'Performe at your best'].index(
+            st.session_state["retrieved_data"].get("TeamStage", 'No team found yet')
         )
     )
     team_freerider = st.checkbox("Have a member do not contribute sufficiently", value=st.session_state["retrieved_data"].get("TeamFreeRider", False))
@@ -192,16 +192,16 @@ with st.form("this"):
     wbs = st.selectbox(
         "WBS",
         options=['Not done', 'WBS is created', 'WBS is validated'],
-        index=['CreateNoWBS', 'CreateWBS', 'ValidateWBS'].index(
-            st.session_state["retrieved_data"].get("WBS", "CreateNoWBS")
+        index=['Not done', 'WBS is created', 'WBS is validated'].index(
+            st.session_state["retrieved_data"].get("WBS", 'Not done')
         )
     )  
     time_estimated = st.checkbox("Time Estimated for Activities ?", value=st.session_state["retrieved_data"].get("TimeEstimated", False))
     ganttchart = st.selectbox(
         "GanttChart",
         options=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'],
-        index=['CreateNoGantt', 'CreateGantt', 'ValidateGantt'].index(
-            st.session_state["retrieved_data"].get("GanttChart", "CreateNoGantt")
+        index=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'].index(
+            st.session_state["retrieved_data"].get("GanttChart", 'Not done')
         )
     )      
     st.write("5. Risk and Communication Management")
