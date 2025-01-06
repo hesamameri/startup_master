@@ -200,8 +200,8 @@ with st.form("this"):
     ganttchart = st.selectbox(
         "GanttChart",
         options=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'],
-        index=['CreateNoGantt', 'CreateGantt', 'ValidateGantt'].index(
-            st.session_state["retrieved_data"].get("GanttChart", "CreateNoGantt")
+        index=['Not done', 'Gantt Chart is created', 'Gantt Chart is validated'].index(
+            st.session_state["retrieved_data"].get("GanttChart", 'Not done')
         )
     )      
     st.write("5. Risk and Communication Management")
