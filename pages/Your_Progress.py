@@ -179,6 +179,45 @@ def calculate_assignment_progress(username):
     
     return progress
 
+
+
+
+
+def calculate_project_progress(username):
+    print(username)
+    projects_collection = db['projects']
+    user_data = user_collection.find_one({"username": username})
+    if not user_data:
+        st.error("User not found!")
+        return 0
+    
+    class_name = user_data.get("class", "USN25_PRO1000_Bo")
+    project_form_record = projects_collection.find_one({"username": username, "selected_class": class_name})
+    
+    if not project_form_record:
+        st.error("Project record not found!")
+        return 0
+    
+    forms = project_form_record['forms']
+    
+    # Check if timestamp is already a datetime object
+    if isinstance(forms[0]['timestamp'], datetime):
+        latest_form = max(forms, key=lambda x: x['timestamp'])
+    else:
+        latest_form = max(forms, key=lambda x: datetime.fromtimestamp(x['timestamp']['$date']['$numberLong'] / 1000.0))
+    
+    # Count fields that are True or non-empty strings
+    count_true_or_nonempty = sum(1 for k, v in latest_form.items() if 
+                                  k != 'timestamp' and 
+                                  (v is True or (isinstance(v, str) and v.strip() != '')))
+    
+    # Count total fields excluding 'timestamp'
+    total_fields = len([k for k in latest_form.keys() if k != 'timestamp'])
+    
+    # Calculate progress
+    progress = count_true_or_nonempty / total_fields if total_fields > 0 else 0
+    
+    return int(progress*100)
     
 
 # Ensure username exists in session state
@@ -193,12 +232,19 @@ else:
 
         # Calculate assignment progress
         assignment_progress = calculate_assignment_progress(username)
-        
+        project_progress = calculate_project_progress(username)
+        print(project_progress)
         # Display progress bars
         my_assignment = st.progress(
             assignment_progress, 
             text=f"You have completed {assignment_progress:.2f}% of your exercises in this course"
         )
-        my_milestones = st.progress(50, text="You should have completed 1/2 obligatory assignments in this course")
-        my_meeting = st.progress(15, text="You should have completed 1/7 obligatory meetings or surveys with InnSpill")
-        my_group_presentation = st.progress(0, text="You have completed 0/2 obligatory group presentations in this course")
+        
+        # my_milestones = st.progress(50, text="You should have completed 1/2 obligatory assignments in this course")
+        my_milestones = st.progress(
+            project_progress, 
+            text=f"You have completed {project_progress:.2f}% of your project milestones in this course"
+        )
+
+        # my_meeting = st.progress(0, text="You should have completed 1/7 obligatory meetings or surveys with InnSpill")
+        # my_group_presentation = st.progress(0, text="You have completed 0/2 obligatory group presentations in this course")
