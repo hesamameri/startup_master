@@ -200,8 +200,8 @@ try:
 
                     with st.expander("Submit your exercise here"):
                         with st.form(f"my_form_{i}"):
-                            email_feedback = st.text_input("Email to receive feedback", "12345678@std.usn")
-                            response = st.text_area("Write your exercise here", "", height=200)
+                            email_feedback = st.text_input("Email to receive additional feedback if applied", "12345678@std.usn")
+                            response = st.text_area("Put all the text to answer the exercise here", "", height=200)
                             submitted = st.form_submit_button("Submit")
 
                         if submitted:
