@@ -153,10 +153,12 @@ def check_submission_feedback(task_name):
 
 
 try:
+    print(class_name)
     query = {"class":class_name}
     modules = collection.find(query)  # Fetch all documents
-    module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
-    
+    print(modules)
+    module_names = [record["module_name"] for record in modules if "module_name" in record]
+    print(module_names)
     # Check if module_names is non-empty
     if module_names:
         tabs = st.tabs(module_names)
