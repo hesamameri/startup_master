@@ -89,7 +89,8 @@ if 'chat_id_status' not in st.session_state:
                 st.markdown(f"<p style='font-size:12px;'>{date.strftime('%A, %B %d, %Y')}</p>", unsafe_allow_html=True)
                 #st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                 for chat in chats_for_date:
-                    if st.button(chat['title']):
+                    button_key = f"{chat['title']}_{chat['chat_id']}"  # Create a unique key
+                    if st.button(chat['title'], key=button_key):  # Add unique key
                         st.session_state['chat_id'] = chat['chat_id']
                         st.session_state['chat_activated'] = True
 
@@ -123,7 +124,8 @@ else:
                     #st.markdown(f"### {date.strftime('%A, %B %d, %Y')}")  # Display date header
                     st.markdown(f"<p style='font-size:12px;'>{date.strftime('%A, %B %d, %Y')}</p>", unsafe_allow_html=True)
                     for chat in chats_for_date:
-                        if st.button(chat['title']):
+                        button_key = f"{chat['title']}_{chat['chat_id']}"  # Create a unique key
+                        if st.button(chat['title'], key=button_key):  # Add unique key
                             st.session_state['chat_id'] = chat['chat_id']
                             st.session_state['chat_activated'] = True
 
