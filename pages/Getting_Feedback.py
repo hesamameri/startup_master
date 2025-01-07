@@ -124,7 +124,13 @@ db = client[database_name]
 collection = db[collection_name]
 exercise_collection = db['exercises']
 
-
+users_collection = db['usertests']
+current_user = st.session_state['username']
+class_current_user = users_collection.find_one({"username":current_user})
+class_name = class_current_user['class']
+# add the code for users class retrieval and use it in the query for modules
+print(current_user)
+print(class_name)
 ##############
 def check_submission_feedback(task_name):
     collection = db['exercises']
@@ -147,9 +153,10 @@ def check_submission_feedback(task_name):
 
 
 try:
-    modules = collection.find()  # Fetch all documents
+    query = {"class":class_name}
+    modules = collection.find(query)  # Fetch all documents
     module_names = [record["module_name"] for record in collection.find() if "module_name" in record]
-
+    
     # Check if module_names is non-empty
     if module_names:
         tabs = st.tabs(module_names)
