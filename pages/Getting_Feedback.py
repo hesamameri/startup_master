@@ -199,25 +199,29 @@ try:
                    
 
 
-
+                    error_placeholder = st.empty()
                     with st.expander("Submit your exercise here"):
                         with st.form(f"my_form_{i}"):
                             email_feedback = st.text_input("Email to receive additional feedback if applied", "12345678@std.usn")
                             response = st.text_area("Put all the text to answer the exercise here", "", height=200)
                             submitted = st.form_submit_button("Submit")
-
+                        error_placeholder.empty()
                         if submitted:
-                            item = st.session_state['selected_task']
-                            item['user_id'] = st.session_state['username']
-                            item['class'] = module_record['class']
-                            item['email_feedback'] = email_feedback
-                            item['response'] = response
-                            item['feedback'] = None
-                            item['feedback_grade'] = 1
-                            item['feedback_sent'] = False
-                            item['timestamp'] = datetime.now()
-                            # submission_status,message = 
-                            st.session_state['submission'] = add_exercise_item(item)
+                            # Check if response is empty
+                            if not response.strip():
+                                error_placeholder.error("Error: You cannot submit an empty response!")
+                            else:
+                                item = st.session_state['selected_task']
+                                item['user_id'] = st.session_state['username']
+                                item['class'] = module_record['class']
+                                item['email_feedback'] = email_feedback
+                                item['response'] = response
+                                item['feedback'] = None
+                                item['feedback_grade'] = 1
+                                item['feedback_sent'] = False
+                                item['timestamp'] = datetime.now()
+                                st.session_state['submission'] = add_exercise_item(item)
+                                error_placeholder.empty()
                     # Simulating submission
                     if 'submission' in st.session_state:
                         success_message = st.session_state['submission'][1]
