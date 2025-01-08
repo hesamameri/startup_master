@@ -157,7 +157,7 @@ if st.sidebar.button("Log Out"):
 
 st.title("🏢 InnSpill Compis")
 st.markdown("""
-    Her kan dere be om informasjon om kurset, forelesninger, øvinger, gruppearbeid og prosjekter
+    Her kan dere be om informasjon om kurset, forelesninger, øvinger, gruppearbeid og prosjekter. Vær oppmerksom på at noe informasjon kanskje ikke er presis. Hvis noe du tviler på, spør læreren.
 """, unsafe_allow_html=True)
 
 with st.form("my_form"):
